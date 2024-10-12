@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:minesweeper/models/models.dart';
-import 'package:minesweeper/controllers/homepage.dart';
-import 'package:minesweeper/views/homepage.dart';
+import 'package:minesweeper/models/common_models.dart';
+import 'package:minesweeper/controllers/homepage_controller.dart';
+import 'package:minesweeper/views/homepage_view.dart';
 
 void main() {
   runApp(const MinesweeperApp());
@@ -19,7 +19,7 @@ class MinesweeperApp extends StatelessWidget {
     return MaterialApp(
       title: 'Minesweeper',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
       home: HomepageView(controller: homepageController),
     );

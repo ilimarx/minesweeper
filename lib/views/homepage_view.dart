@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:minesweeper/controllers/homepage.dart';
+import 'package:minesweeper/controllers/homepage_controller.dart';
 
 class HomepageView extends StatefulWidget {
   final HomepageController controller;
