@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "485270934354",
+    "project_id": "ituminesweeper",
+    "storage_bucket": "ituminesweeper.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:485270934354:android:e9d9d107cd7fce9bce208b",
+        "android_client_info": {
+          "package_name": "com.example.minesweeper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDakmKGgbmC7lETzL0_1FX8g8dPxDFmx1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

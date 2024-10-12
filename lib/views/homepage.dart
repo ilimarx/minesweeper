@@ -4,7 +4,7 @@ import 'package:minesweeper/controllers/homepage.dart';
 class HomepageView extends StatefulWidget {
   final HomepageController controller;
 
-  const HomepageView({required this.controller});
+  const HomepageView({super.key, required this.controller});
 
   @override
   _HomepageViewState createState() => _HomepageViewState();
@@ -17,22 +17,28 @@ class _HomepageViewState extends State<HomepageView> {
       appBar: AppBar(
         title: const Text('Minesweeper Menu'),
       ),
+      
+      
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            
             _buildDifficultySelector(),
+            
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 widget.controller.startGame(context);
               },
-              child: Text('Start Game'),
+              child: const Text('Start Game'),
             ),
+            
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _showRules,
               child: const Text('Game Rules'),
+            
             ),
           ],
         ),
