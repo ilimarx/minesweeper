@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:minesweeper/models/common_models.dart';
+import 'package:minesweeper/models/homepage_model.dart';
 
 class HomepageController {
   final HomepageModel model;

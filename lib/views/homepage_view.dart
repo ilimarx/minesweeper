@@ -40,9 +40,14 @@ class _HomepageViewState extends State<HomepageView> {
               child: const Text('Game Rules'),
             
             ),
+
+            
+
           ],
         ),
       ),
+
+      
     );
   }
 
