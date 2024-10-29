@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
+import 'package:minesweeper/views/profile_view.dart';
 
 class HomepageView extends StatefulWidget {
   final HomepageController controller;
@@ -15,9 +16,23 @@ class _HomepageViewState extends State<HomepageView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Minesweeper Menu'),
+        title: const Center(child: Text('Minesweeper Menu')),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.account_circle_outlined),
+            tooltip: 'Profile',
+            onPressed: () {
+              Navigator.pushNamed(context, '/profile');
+            }
+          ),
+        ],
+        leading: IconButton(
+            onPressed: _showRules,
+            tooltip: 'Theme',
+            icon: const Icon(Icons.palette_outlined)
+        ),
       ),
-      
+
       
       body: Center(
         child: Column(
