@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
 import 'package:minesweeper/views/profile_view.dart';
 
@@ -20,6 +21,7 @@ class _HomepageViewState extends State<HomepageView> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
+            iconSize: 40,
             tooltip: 'Profile',
             onPressed: () {
               Navigator.pushNamed(context, '/profile');
@@ -29,7 +31,8 @@ class _HomepageViewState extends State<HomepageView> {
         leading: IconButton(
             onPressed: _showRules,
             tooltip: 'Theme',
-            icon: const Icon(Icons.palette_outlined)
+            icon: const Icon(Icons.palette_outlined),
+            iconSize: 40
         ),
       ),
 
@@ -38,6 +41,12 @@ class _HomepageViewState extends State<HomepageView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+
+            SvgPicture.asset(
+              'assets/images/mine.svg',
+              height: 300,
+              width: 300,
+            ),
             
             _buildDifficultySelector(),
             

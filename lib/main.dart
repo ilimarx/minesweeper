@@ -35,7 +35,7 @@ class MinesweeperApp extends StatelessWidget {
             fontWeight: FontWeight.bold
           ),
           titleLarge: GoogleFonts.roboto(
-            fontSize: 26,
+            fontSize: 24,
             fontWeight: FontWeight.bold
           ),
           titleMedium: GoogleFonts.roboto(),
