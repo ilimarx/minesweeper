@@ -1,25 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'create_account_view.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AuthView extends StatefulWidget {
-  const AuthView({super.key});
+class CreateAccountView extends StatefulWidget {
   @override
-  _AuthViewState createState() => _AuthViewState();
+  _CreateAccountViewState createState() => _CreateAccountViewState();
 }
 
-class _AuthViewState extends State<AuthView> {
+class _CreateAccountViewState extends State<CreateAccountView> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
   String? _errorMessage;
 
-  Future<void> _signInWithEmailAndPassword() async {
+  Future<void> _createAccountWithEmailAndPassword() async {
     try {
-      await _auth.signInWithEmailAndPassword(
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
+      String uid = userCredential.user!.uid;
+
+      await _firestore.collection('users').doc(uid).set({
+        'email': _emailController.text.trim(),
+        'username': _usernameController.text.trim(),
+        'avatar': '',
+        'bestTime': null,
+      });
+
+      Navigator.pop(context);
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
@@ -31,7 +44,7 @@ class _AuthViewState extends State<AuthView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign In to Minesweeper'),
+        title: Text('Create Account'),
         centerTitle: true,
       ),
       body: Padding(
@@ -39,6 +52,12 @@ class _AuthViewState extends State<AuthView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+              ),
+            ),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
@@ -52,37 +71,15 @@ class _AuthViewState extends State<AuthView> {
               ),
               obscureText: true,
             ),
-
             SizedBox(height: 20),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CreateAccountView()),
-                    );
-                  },
-                  child: Text('Create Accaunt'),
-                  style: TextButton.styleFrom(
-                      fixedSize: Size(165, 36),
-                      backgroundColor: Color(0xFFE1E6C3),
-                      foregroundColor: Color(0xFF32361F)
-                  ),
-                ),
-
-                SizedBox(width: 12),
-
-                ElevatedButton(
-                  onPressed: _signInWithEmailAndPassword,
-                  child: Text('Sign In'),
-                  style: ElevatedButton.styleFrom(
-                    fixedSize: Size(165, 36),
-                  ),
-                ),
-              ]
+            ElevatedButton(
+              onPressed: _createAccountWithEmailAndPassword,
+              child: Text('Create Account'),
+              style: ElevatedButton.styleFrom(
+                fixedSize: Size(165, 36),
+                backgroundColor: Color(0xFFE1E6C3),
+                foregroundColor: Color(0xFF32361F),
+              ),
             ),
             if (_errorMessage != null) ...[
               SizedBox(height: 20),

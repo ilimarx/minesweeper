@@ -57,8 +57,11 @@ class MinesweeperApp extends StatelessWidget {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: Color(0xFF576421),
-            textStyle: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w600),
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            textStyle: GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w600),
+            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(32),
+            ),
           ),
         ),
       ),
