@@ -4,6 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
 import 'package:minesweeper/views/profile_view.dart';
 
+import '../models/user_model.dart';
+import '../services/user_service.dart';
+
 class HomepageView extends StatefulWidget {
   final HomepageController controller;
   final User user;
@@ -19,6 +22,22 @@ class HomepageView extends StatefulWidget {
 }
 
 class _HomepageViewState extends State<HomepageView> {
+  UserModel? _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    UserService userService = UserService();
+    UserModel? user = await userService.getUserData();
+    setState(() {
+      _currentUser = user;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +49,7 @@ class _HomepageViewState extends State<HomepageView> {
             iconSize: 40,
             tooltip: 'Profile',
             onPressed: () {
-              Navigator.pushNamed(context, '/profile', arguments: widget.user);
+              Navigator.pushNamed(context, '/profile', arguments: _currentUser);
             }
           ),
         ],

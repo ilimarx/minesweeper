@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:minesweeper/models/homepage_model.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
+import 'package:minesweeper/models/user_model.dart';
 import 'package:minesweeper/views/homepage_view.dart';
 import 'package:minesweeper/routing/authentication_wrapper.dart';
 import 'package:minesweeper/views/profile_view.dart';
@@ -70,7 +71,7 @@ class MinesweeperApp extends StatelessWidget {
       routes: {
         '/': (context) => AuthenticationWrapper(),
         '/profile': (context) {
-          final user = ModalRoute.of(context)!.settings.arguments as User;
+          final user = ModalRoute.of(context)!.settings.arguments as UserModel;
           return ProfileView(user: user);
         },
       },
