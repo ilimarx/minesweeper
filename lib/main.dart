@@ -9,6 +9,7 @@ import 'package:minesweeper/models/user_model.dart';
 import 'package:minesweeper/views/homepage_view.dart';
 import 'package:minesweeper/routing/authentication_wrapper.dart';
 import 'package:minesweeper/views/profile_view.dart';
+import 'package:minesweeper/views/settings_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,6 +75,10 @@ class MinesweeperApp extends StatelessWidget {
           final user = ModalRoute.of(context)!.settings.arguments as UserModel;
           return ProfileView(user: user);
         },
+        '/profile/settings': (context) {
+          final user = ModalRoute.of(context)!.settings.arguments as UserModel;
+          return SettingsView(user: user);
+        }
       },
     );
   }
