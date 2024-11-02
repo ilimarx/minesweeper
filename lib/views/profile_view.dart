@@ -7,6 +7,8 @@ class ProfileView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Profile'),
       ),
+
+
       body: Center(
         child: const Text('This is the Profile Page'),
       ),

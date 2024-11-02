@@ -50,7 +50,7 @@ class _HomepageViewState extends State<HomepageView> {
             
             _buildDifficultySelector(),
             
-            const SizedBox(height: 20),
+            const SizedBox(height: 9),
             ElevatedButton(
               onPressed: () {
                 widget.controller.startGame(context);
@@ -58,11 +58,14 @@ class _HomepageViewState extends State<HomepageView> {
               child: const Text('Start Game'),
             ),
             
-            const SizedBox(height: 20),
+            const SizedBox(height: 9),
             ElevatedButton(
               onPressed: _showRules,
               child: const Text('Game Rules'),
-            
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFE1E6C3),
+                  foregroundColor: Color(0xFF32361F)
+              )
             ),
 
             

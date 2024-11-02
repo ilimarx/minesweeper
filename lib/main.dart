@@ -39,8 +39,28 @@ class MinesweeperApp extends StatelessWidget {
             fontWeight: FontWeight.bold
           ),
           titleMedium: GoogleFonts.roboto(),
-          titleSmall: GoogleFonts.roboto()
-        )
+          titleSmall: GoogleFonts.roboto(),
+        ),
+
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF576421),
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            textStyle: GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w600),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(32),
+            ),
+          ),
+        ),
+
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: Color(0xFF576421),
+            textStyle: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w600),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
+        ),
       ),
       initialRoute: '/',
       routes: {
