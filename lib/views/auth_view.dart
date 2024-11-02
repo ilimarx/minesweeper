@@ -44,9 +44,10 @@ class _AuthViewState extends State<AuthView> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Sign In to Minesweeper'),
+        centerTitle: true
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -64,14 +65,28 @@ class _AuthViewState extends State<AuthView> {
               obscureText: true,
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _signInWithEmailAndPassword,
-              child: Text('Sign In'),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _createAccountWithEmailAndPassword,
-              child: Text('Create Account'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: _createAccountWithEmailAndPassword,
+                  child: Text('Create Account'),
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: Size(165, 36),
+                      backgroundColor: Color(0xFFE1E6C3),
+                      foregroundColor: Color(0xFF32361F)
+                  ),
+                ),
+                SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: _signInWithEmailAndPassword,
+                  child: Text('Sign In'),
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: Size(165, 36),
+                  ),
+                ),
+
+              ],
             ),
             if (_errorMessage != null) ...[
               SizedBox(height: 20),

@@ -17,8 +17,7 @@ class AuthenticationWrapper extends StatelessWidget {
           // If the user is logged in, show the game menu
           User? user = snapshot.data;
           if (user == null) {
-            return HomepageView(controller: homepageController);
-            //return AuthView();  // Show sign-in page if not authenticated
+            return AuthView();  // Show sign-in page if not authenticated
           } else {
             return HomepageView(controller: homepageController);  // Show main game menu if authenticated
           }
