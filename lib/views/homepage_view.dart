@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
@@ -5,8 +6,13 @@ import 'package:minesweeper/views/profile_view.dart';
 
 class HomepageView extends StatefulWidget {
   final HomepageController controller;
+  final User user;
 
-  const HomepageView({super.key, required this.controller});
+  const HomepageView({
+    super.key,
+    required this.controller,
+    required this.user,
+  });
 
   @override
   _HomepageViewState createState() => _HomepageViewState();
@@ -24,7 +30,7 @@ class _HomepageViewState extends State<HomepageView> {
             iconSize: 40,
             tooltip: 'Profile',
             onPressed: () {
-              Navigator.pushNamed(context, '/profile');
+              Navigator.pushNamed(context, '/profile', arguments: widget.user);
             }
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -68,7 +69,10 @@ class MinesweeperApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => AuthenticationWrapper(),
-        '/profile': (context) => ProfileView(),
+        '/profile': (context) {
+          final user = ModalRoute.of(context)!.settings.arguments as User;
+          return ProfileView(user: user);
+        },
       },
     );
   }
