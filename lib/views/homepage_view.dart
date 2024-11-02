@@ -46,7 +46,7 @@ class _HomepageViewState extends State<HomepageView> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
-            iconSize: 40,
+            iconSize: 36,
             tooltip: 'Profile',
             onPressed: () {
               Navigator.pushNamed(context, '/profile', arguments: _currentUser);
@@ -57,7 +57,7 @@ class _HomepageViewState extends State<HomepageView> {
             onPressed: _showRules,
             tooltip: 'Theme',
             icon: const Icon(Icons.palette_outlined),
-            iconSize: 40
+            iconSize: 36
         ),
       ),
 
