@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
+import 'package:minesweeper/views/profile_view.dart';
 
 class HomepageView extends StatefulWidget {
   final HomepageController controller;
@@ -15,18 +17,40 @@ class _HomepageViewState extends State<HomepageView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Minesweeper Menu'),
+        title: const Center(child: Text('Minesweeper Menu')),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.account_circle_outlined),
+            iconSize: 40,
+            tooltip: 'Profile',
+            onPressed: () {
+              Navigator.pushNamed(context, '/profile');
+            }
+          ),
+        ],
+        leading: IconButton(
+            onPressed: _showRules,
+            tooltip: 'Theme',
+            icon: const Icon(Icons.palette_outlined),
+            iconSize: 40
+        ),
       ),
-      
+
       
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+
+            SvgPicture.asset(
+              'assets/images/mine.svg',
+              height: 300,
+              width: 300,
+            ),
             
             _buildDifficultySelector(),
             
-            const SizedBox(height: 20),
+            const SizedBox(height: 9),
             ElevatedButton(
               onPressed: () {
                 widget.controller.startGame(context);
@@ -34,11 +58,14 @@ class _HomepageViewState extends State<HomepageView> {
               child: const Text('Start Game'),
             ),
             
-            const SizedBox(height: 20),
+            const SizedBox(height: 9),
             ElevatedButton(
               onPressed: _showRules,
               child: const Text('Game Rules'),
-            
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFE1E6C3),
+                  foregroundColor: Color(0xFF32361F)
+              )
             ),
 
             
