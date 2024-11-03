@@ -4,15 +4,17 @@ class UserModel {
   final String uid;
   final String email;
   final String username;
-  final String avatarUrl;
+  final String avatar;
   final int bestTime;
+  final int playedGames;
 
   UserModel({
     required this.uid,
     required this.email,
     required this.username,
-    required this.avatarUrl,
+    required this.avatar,
     required this.bestTime,
+    required this.playedGames
   });
   
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -21,8 +23,9 @@ class UserModel {
       uid: doc.id,
       email: data['email'] ?? '',
       username: data['username'] ?? '',
-      avatarUrl: data['avatarUrl'] ?? '',
+      avatar: data['avatar'] ?? '',
       bestTime: data['bestTime'] ?? 0,
+      playedGames: data['playedGames'] ?? 0
     );
   }
 }
