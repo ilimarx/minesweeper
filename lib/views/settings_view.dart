@@ -28,8 +28,8 @@ class SettingsView extends StatelessWidget {
             Text('Username: ${user.username}', style: TextStyle(fontSize: 20)),
             Text('Email: ${user.email}', style: TextStyle(fontSize: 20)),
             Text('Best Time: ${user.bestTime}', style: TextStyle(fontSize: 20)),
-            if (user.avatarUrl.isNotEmpty)
-              Image.network(user.avatarUrl, height: 100, width: 100),
+            if (user.avatar.isNotEmpty)
+              Image.network(user.avatar, height: 100, width: 100),
           ],
         ),
       ),

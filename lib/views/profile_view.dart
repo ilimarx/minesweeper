@@ -13,6 +13,16 @@ class ProfileView extends StatelessWidget {
         backgroundColor: Color(0XFFE1E6C3),
         title: const Text('Profile'),
         centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+              icon: const Icon(Icons.settings),
+              iconSize: 36,
+              tooltip: 'Profile',
+              onPressed: () {
+                Navigator.pushNamed(context, '/profile/settings', arguments: user);
+              }
+          ),
+        ],
       ),
       body: Align(
         alignment: Alignment.topCenter,
@@ -48,30 +58,38 @@ class ProfileView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Rank
-                  Column(
-                    children: [
-                      const Text('Rank:', style: TextStyle(fontSize: 16, color: Color(0xFF77786A), fontWeight: FontWeight.w400)),
-                      Text(user.playedGames.toString(), style: const TextStyle(fontSize: 18)),
-                    ],
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text('Rank:', style: TextStyle(fontSize: 16, color: Color(0xFF77786A), fontWeight: FontWeight.w400)),
+                        Text(user.playedGames.toString(), style: const TextStyle(fontSize: 18)),
+                      ],
+                    ),
                   ),
 
-                  const Spacer(flex: 3),
+                  const SizedBox(width: 30),
 
                   // Best Time
-                  Column(
-                    children: [
-                      const Text('Best Time:', style: TextStyle(fontSize: 16, color: Color(0xFF77786A), fontWeight: FontWeight.w400)),
-                      Text('${user.bestTime}s', style: const TextStyle(fontSize: 18)),
-                    ],
+                  Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        const Text('Best Time:', style: TextStyle(fontSize: 16, color: Color(0xFF77786A), fontWeight: FontWeight.w400)),
+                        Text('${user.bestTime}s', style: const TextStyle(fontSize: 18)),
+                      ],
+                    ),
                   ),
                   // Played Games
-                  const Spacer(flex: 3),
 
-                  Column(
-                    children: [
-                      const Text('Played Games:', style: TextStyle(fontSize: 16, color: Color(0xFF77786A), fontWeight: FontWeight.w400)),
-                      Text(user.playedGames.toString(), style: const TextStyle(fontSize: 18)),
-                    ],
+                  const SizedBox(width: 30),
+
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text('Played Games:', style: TextStyle(fontSize: 16, color: Color(0xFF77786A), fontWeight: FontWeight.w400)),
+                        Text(user.playedGames.toString(), style: const TextStyle(fontSize: 18)),
+                      ],
+                    ),
                   ),
                 ],
               ),
