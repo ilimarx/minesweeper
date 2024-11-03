@@ -1,10 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:minesweeper/models/homepage_model.dart';
 
+import '../models/user_model.dart';
+
 class HomepageController {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final HomepageModel model;
 
- HomepageController(this.model);
+  HomepageController(this.model);
+
+  Future<UserModel?> loadUserData() async {
+    User? currentUser = _auth.currentUser;
+    if (currentUser != null) {
+      DocumentSnapshot doc = await _firestore.collection('users').doc(currentUser.uid).get();
+      if (doc.exists) {
+        return UserModel.fromFirestore(doc);
+      }
+    }
+    return null;
+  }
+
 
   void selectDifficulty(String difficulty) {
     model.setDifficulty(difficulty);

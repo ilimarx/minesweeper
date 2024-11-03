@@ -20,7 +20,7 @@ class AuthenticationWrapper extends StatelessWidget {
             return AuthView();  // Show sign-in page if not authenticated
           } else {
             return HomepageView(
-                controller: homepageController, user: user,
+                controller: homepageController,
             );  // Show main game menu if authenticated
           }
         } else {
