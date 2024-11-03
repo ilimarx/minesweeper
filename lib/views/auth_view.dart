@@ -22,7 +22,7 @@ class _AuthViewState extends State<AuthView> {
     );
     if (user == null) {
       setState(() {
-        _errorMessage = "Failed to sign in. Please check your credentials.";
+        _errorMessage = "Failed to sign in. Please check your email or password.";
       });
     }
   }
