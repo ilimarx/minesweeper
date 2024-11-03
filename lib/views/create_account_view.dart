@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../controllers/auth_controller.dart';
 
 class CreateAccountView extends StatefulWidget {
   @override
@@ -8,35 +7,24 @@ class CreateAccountView extends StatefulWidget {
 }
 
 class _CreateAccountViewState extends State<CreateAccountView> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  final AuthController _authController = AuthController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _usernameController = TextEditingController();
   String? _errorMessage;
 
-  Future<void> _createAccountWithEmailAndPassword() async {
-    try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-
-      String uid = userCredential.user!.uid;
-
-      await _firestore.collection('users').doc(uid).set({
-        'email': _emailController.text.trim(),
-        'username': _usernameController.text.trim(),
-        'avatar': '',
-        'bestTime': null,
-      });
-
-      Navigator.pop(context);
-    } catch (e) {
+  Future<void> _createAccount() async {
+    final user = await _authController.createAccountWithEmailAndPassword(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+      _usernameController.text.trim(),
+    );
+    if (user == null) {
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = "Failed to create account. Please try again.";
       });
+    } else {
+      Navigator.pop(context);
     }
   }
 
@@ -73,7 +61,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _createAccountWithEmailAndPassword,
+              onPressed: _createAccount,
               child: Text('Create Account'),
               style: ElevatedButton.styleFrom(
                 fixedSize: Size(165, 36),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../controllers/auth_controller.dart';
 import 'create_account_view.dart';
 
 class AuthView extends StatefulWidget {
@@ -9,20 +10,19 @@ class AuthView extends StatefulWidget {
 }
 
 class _AuthViewState extends State<AuthView> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final AuthController _authController = AuthController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   String? _errorMessage;
 
-  Future<void> _signInWithEmailAndPassword() async {
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-    } catch (e) {
+  Future<void> _signIn() async {
+    final user = await _authController.signInWithEmailAndPassword(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+    if (user == null) {
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = "Failed to sign in. Please check your credentials.";
       });
     }
   }
@@ -52,9 +52,7 @@ class _AuthViewState extends State<AuthView> {
               ),
               obscureText: true,
             ),
-
             SizedBox(height: 20),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -62,27 +60,26 @@ class _AuthViewState extends State<AuthView> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => CreateAccountView()),
+                      MaterialPageRoute(
+                        builder: (context) => CreateAccountView(),
+                      ),
                     );
                   },
-                  child: Text('Create Accaunt'),
+                  child: Text('Create Account'),
                   style: TextButton.styleFrom(
-                      fixedSize: Size(165, 36),
-                      backgroundColor: Color(0xFFE1E6C3),
-                      foregroundColor: Color(0xFF32361F)
+                    fixedSize: Size(165, 36),
+                    backgroundColor: Color(0xFFE1E6C3),
+                    foregroundColor: Color(0xFF32361F),
                   ),
                 ),
-
-                SizedBox(width: 12),
-
                 ElevatedButton(
-                  onPressed: _signInWithEmailAndPassword,
+                  onPressed: _signIn,
                   child: Text('Sign In'),
                   style: ElevatedButton.styleFrom(
                     fixedSize: Size(165, 36),
                   ),
                 ),
-              ]
+              ],
             ),
             if (_errorMessage != null) ...[
               SizedBox(height: 20),
