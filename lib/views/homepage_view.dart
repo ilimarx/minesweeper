@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:minesweeper/controllers/homepage_controller.dart';
-import 'package:minesweeper/views/profile_view.dart';
+import '../controllers/homepage_controller.dart';
+import '../models/user_model.dart';
+import 'profile_view.dart';
 
 class HomepageView extends StatefulWidget {
   final HomepageController controller;
@@ -13,6 +14,21 @@ class HomepageView extends StatefulWidget {
 }
 
 class _HomepageViewState extends State<HomepageView> {
+  UserModel? _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    UserModel? user = await widget.controller.loadUserData();
+    setState(() {
+      _currentUser = user;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,60 +37,54 @@ class _HomepageViewState extends State<HomepageView> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
-            iconSize: 40,
+            iconSize: 36,
             tooltip: 'Profile',
             onPressed: () {
-              Navigator.pushNamed(context, '/profile');
-            }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileView(user: _currentUser!),
+                ),
+              );
+            },
           ),
         ],
         leading: IconButton(
-            onPressed: _showRules,
-            tooltip: 'Theme',
-            icon: const Icon(Icons.palette_outlined),
-            iconSize: 40
+          onPressed: _showRules,
+          tooltip: 'Theme',
+          icon: const Icon(Icons.palette_outlined),
+          iconSize: 36,
         ),
       ),
-
-      
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-
             SvgPicture.asset(
               'assets/images/mine.svg',
               height: 300,
               width: 300,
             ),
-            
             _buildDifficultySelector(),
-            
             const SizedBox(height: 9),
             ElevatedButton(
               onPressed: () {
-                widget.controller.startGame(context);
+                widget.controller.startGame(context); // Assuming startGame is managed by the controller
               },
               child: const Text('Start Game'),
             ),
-            
             const SizedBox(height: 9),
             ElevatedButton(
-              onPressed: _showRules,
-              child: const Text('Game Rules'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFE1E6C3),
-                  foregroundColor: Color(0xFF32361F)
-              )
+                onPressed: _showRules,
+                child: const Text('Game Rules'),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFE1E6C3),
+                    foregroundColor: Color(0xFF32361F)
+                )
             ),
-
-            
-
           ],
         ),
       ),
-
-      
     );
   }
 
@@ -103,8 +113,8 @@ class _HomepageViewState extends State<HomepageView> {
           title: const Text('Minesweeper Rules'),
           content: const Text(
             'Minesweeper is a puzzle game where you have to clear a board without detonating any hidden mines.'
-            '\n\nSelect a tile to reveal its contents. Numbers on the tiles indicate how many mines are adjacent to that tile.'
-            '\n\nGood luck!',
+                '\n\nSelect a tile to reveal its contents. Numbers on the tiles indicate how many mines are adjacent to that tile.'
+                '\n\nGood luck!',
           ),
           actions: <Widget>[
             TextButton(

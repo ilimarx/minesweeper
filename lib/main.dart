@@ -1,12 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:minesweeper/models/homepage_model.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
+import 'package:minesweeper/models/user_model.dart';
 import 'package:minesweeper/views/homepage_view.dart';
 import 'package:minesweeper/routing/authentication_wrapper.dart';
 import 'package:minesweeper/views/profile_view.dart';
+import 'package:minesweeper/views/settings_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,15 +60,25 @@ class MinesweeperApp extends StatelessWidget {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: Color(0xFF576421),
-            textStyle: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w600),
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            textStyle: GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w600),
+            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(32),
+            ),
           ),
         ),
       ),
       initialRoute: '/',
       routes: {
         '/': (context) => AuthenticationWrapper(),
-        '/profile': (context) => ProfileView(),
+        '/profile': (context) {
+          final user = ModalRoute.of(context)!.settings.arguments as UserModel;
+          return ProfileView(user: user);
+        },
+        '/profile/settings': (context) {
+          final user = ModalRoute.of(context)!.settings.arguments as UserModel;
+          return SettingsView(user: user);
+        }
       },
     );
   }
