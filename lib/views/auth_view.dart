@@ -29,6 +29,8 @@ class _AuthViewState extends State<AuthView> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Sign In to Minesweeper'),
@@ -54,7 +56,7 @@ class _AuthViewState extends State<AuthView> {
             ),
             SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
                   onPressed: () {
@@ -67,7 +69,7 @@ class _AuthViewState extends State<AuthView> {
                   },
                   child: Text('Create Account'),
                   style: TextButton.styleFrom(
-                    fixedSize: Size(165, 36),
+                    fixedSize: Size(screenWidth * 0.4, 36),
                     backgroundColor: Color(0xFFE1E6C3),
                     foregroundColor: Color(0xFF32361F),
                   ),
@@ -76,7 +78,7 @@ class _AuthViewState extends State<AuthView> {
                   onPressed: _signIn,
                   child: Text('Sign In'),
                   style: ElevatedButton.styleFrom(
-                    fixedSize: Size(165, 36),
+                    fixedSize: Size(screenWidth * 0.4, 36),
                   ),
                 ),
               ],

@@ -23,6 +23,7 @@ class MinesweeperApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Initialize the Menu model and controller
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return MaterialApp(
       title: 'Minesweeper',
@@ -49,7 +50,7 @@ class MinesweeperApp extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: Color(0xFF576421),
             foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             textStyle: GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w600),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(32),
@@ -61,7 +62,7 @@ class MinesweeperApp extends StatelessWidget {
           style: TextButton.styleFrom(
             foregroundColor: Color(0xFF576421),
             textStyle: GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w600),
-            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(32),
             ),
