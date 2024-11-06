@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:minesweeper/models/homepage_model.dart';
+import 'package:minesweeper/views/game_view.dart';
 
 import '../models/user_model.dart';
 
@@ -33,17 +34,16 @@ class HomepageController {
   }
 
   void startGame(BuildContext context) {
-    // Logic to navigate to the game view, passing in the selected difficulty
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => MinesweeperView(
-    //       controller: MinesweeperController(
-    //         MinesweeperModel(rows: _getRowsBasedOnDifficulty(), columns: _getColsBasedOnDifficulty())
-    //       ),
-    //     ),
-    //   ),
-    // );
+    int rows = _getRowsBasedOnDifficulty();
+    int cols = _getColsBasedOnDifficulty();
+    int mines = _getMinesBasedOnDifficulty();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GameView(rows: rows, cols: cols, mineCount: mines),
+      ),
+    );
   }
 
   int _getRowsBasedOnDifficulty() {
@@ -59,5 +59,16 @@ class HomepageController {
 
   int _getColsBasedOnDifficulty() {
     return _getRowsBasedOnDifficulty(); // Assuming square board
+  }
+
+  int _getMinesBasedOnDifficulty() {
+    switch (model.selectedDifficulty) {
+      case 'Easy':
+        return 10;
+      case 'Hard':
+        return 40;
+      default:
+        return 20;
+    }
   }
 }

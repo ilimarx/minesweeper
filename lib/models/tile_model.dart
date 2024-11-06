@@ -14,7 +14,7 @@ class TileModel {
   int get col => _offset[1];
   List<bool> get ltrb => _ltrb;
 
-  Tile(int row, int col) {
+  TileModel(int row, int col) {
     _visible = false;
     _hasMine = false;
     _hasFlag = false;
