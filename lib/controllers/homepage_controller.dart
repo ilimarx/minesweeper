@@ -64,7 +64,7 @@ class HomepageController {
   int _getMinesBasedOnDifficulty() {
     switch (model.selectedDifficulty) {
       case 'Easy':
-        return 10;
+        return 1;
       case 'Hard':
         return 40;
       default:

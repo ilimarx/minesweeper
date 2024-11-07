@@ -76,11 +76,11 @@ class _HomepageViewState extends State<HomepageView> {
             const SizedBox(height: 9),
             ElevatedButton(
                 onPressed: _showRules,
-                child: const Text('Game Rules'),
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFE1E6C3),
                     foregroundColor: Color(0xFF32361F)
-                )
+                ),
+                child: const Text('Game Rules')
             ),
           ],
         ),

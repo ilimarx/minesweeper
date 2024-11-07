@@ -16,12 +16,17 @@ class GameView extends StatelessWidget {
       create: (_) => GameController(rows, cols, mineCount),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Minesweeper'),
-          actions: [
+          title: const Center(child: Text('Minesweeper')),
+            actions: [
             IconButton(
               icon: Icon(Icons.refresh),
               onPressed: () {
-                Provider.of<GameController>(context, listen: false).resetGame(rows, cols, mineCount);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                builder: (context) => GameView(rows: rows, cols: cols, mineCount: mineCount),
+                ),
+              );
               },
             ),
           ],
