@@ -14,21 +14,6 @@ class HomepageView extends StatefulWidget {
 }
 
 class _HomepageViewState extends State<HomepageView> {
-  UserModel? _currentUser;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    UserModel? user = await widget.controller.loadUserData();
-    setState(() {
-      _currentUser = user;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,12 +25,7 @@ class _HomepageViewState extends State<HomepageView> {
             iconSize: 36,
             tooltip: 'Profile',
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProfileView(user: _currentUser!),
-                ),
-              );
+              Navigator.pushNamed(context, '/profile');
             },
           ),
         ],

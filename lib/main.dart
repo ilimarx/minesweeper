@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:minesweeper/controllers/profile_controller.dart';
 
 import 'package:minesweeper/models/homepage_model.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
@@ -73,12 +74,12 @@ class MinesweeperApp extends StatelessWidget {
       routes: {
         '/': (context) => AuthenticationWrapper(),
         '/profile': (context) {
-          final user = ModalRoute.of(context)!.settings.arguments as UserModel;
-          return ProfileView(user: user);
+          final profileController = ProfileController();
+          return ProfileView(controller: profileController,);
         },
         '/profile/settings': (context) {
-          final user = ModalRoute.of(context)!.settings.arguments as UserModel;
-          return SettingsView(user: user);
+          final controller = ModalRoute.of(context)!.settings.arguments as ProfileController;
+          return SettingsView(profileController: controller);
         }
       },
     );

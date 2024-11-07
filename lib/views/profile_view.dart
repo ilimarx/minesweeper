@@ -1,13 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:minesweeper/models/user_model.dart';
 
-class ProfileView extends StatelessWidget {
-  final UserModel user;
+import '../controllers/profile_controller.dart';
 
-  const ProfileView({super.key, required this.user});
+class ProfileView extends StatefulWidget {
+  final ProfileController controller;
+
+  ProfileView({super.key, required this.controller});
+
+  @override
+  _ProfileViewState createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<ProfileView> {
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    await widget.controller.loadUserProfile();
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
+    final user = widget.controller.userModel;
+
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Profile'),
+          centerTitle: true,
+        ),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0XFFE1E6C3),
@@ -19,7 +58,8 @@ class ProfileView extends StatelessWidget {
               iconSize: 36,
               tooltip: 'Profile',
               onPressed: () {
-                Navigator.pushNamed(context, '/profile/settings', arguments: user);
+                Navigator.pushNamed(context, '/profile/settings',
+                    arguments: widget.controller).then((_) => _loadProfile());
               }
           ),
         ],
