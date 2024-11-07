@@ -1,10 +1,18 @@
 class TileModel {
-  late bool _visible;
-  late bool _hasMine;
-  late bool _hasFlag;
-  late int _value;
-  late List<int> _offset;
-  late List<bool> _ltrb;
+  bool _visible;
+  bool _hasMine;
+  bool _hasFlag;
+  int _value;
+  List<int> _offset;
+  List<bool> _ltrb;
+
+  TileModel(int row, int col)
+      : _visible = false,
+        _hasMine = false,
+        _hasFlag = false,
+        _value = 0,
+        _offset = [row, col],
+        _ltrb = [false, false, false, false];
 
   bool get visible => _visible;
   bool get hasMine => _hasMine;
@@ -13,15 +21,6 @@ class TileModel {
   int get row => _offset[0];
   int get col => _offset[1];
   List<bool> get ltrb => _ltrb;
-
-  TileModel(int row, int col) {
-    _visible = false;
-    _hasMine = false;
-    _hasFlag = false;
-    _value = -1;
-    _offset = [row, col];
-    _ltrb = [false, false, false, false];
-  }
 
   set setVisible(bool value) {
     _visible = value;
@@ -37,7 +36,6 @@ class TileModel {
 
   set setValue(int value) {
     _value = value;
-    _visible = true;
   }
 
   set setOffset(List<int> value) {
@@ -46,10 +44,5 @@ class TileModel {
 
   set addBorder(int index) {
     _ltrb[index] = true;
-  }
-
-  @override
-  String toString() {
-    return value.toString();
   }
 }

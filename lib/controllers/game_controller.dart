@@ -45,7 +45,7 @@ class GameController extends ChangeNotifier {
       for (int j = -1; j <= 1; j++) {
         int newRow = row + i;
         int newCol = col + j;
-        if (_gameModel.isValidTile(newCol, newRow) && !_gameModel.grid[newRow][newCol].visible) {
+        if (_gameModel.isValidTile(newRow, newCol) && !_gameModel.grid[newRow][newCol].visible) {
           revealTile(newRow, newCol);
         }
       }
