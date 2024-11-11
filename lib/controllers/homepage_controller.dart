@@ -51,7 +51,7 @@ class HomepageController {
       case 'Easy':
         return 8;
       case 'Hard':
-        return 16;
+        return 11;
       default:
         return 10;
     }
@@ -64,11 +64,11 @@ class HomepageController {
   int _getMinesBasedOnDifficulty() {
     switch (model.selectedDifficulty) {
       case 'Easy':
-        return 1;
+        return 5;
       case 'Hard':
-        return 40;
-      default:
         return 20;
+      default:
+        return 10;
     }
   }
 }
