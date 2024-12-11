@@ -1,33 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:minesweeper/views/auth_view.dart';  // Your main game menu view
-import 'package:minesweeper/views/homepage_view.dart';  // Authentication view for sign in
+import 'package:minesweeper/views/auth_view.dart';
+import 'package:minesweeper/views/homepage_view.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
 import 'package:minesweeper/models/homepage_model.dart';
 
-class AuthenticationWrapper extends StatelessWidget {
+class AuthenticationWrapper extends StatefulWidget {
+  const AuthenticationWrapper({super.key});
+
+  @override
+  State<AuthenticationWrapper> createState() => _AuthenticationWrapperState();
+}
+
+class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
+  final HomepageController homepageController = HomepageController(HomepageModel());
+  final ValueNotifier<Widget> _currentView = ValueNotifier<Widget>(const CircularProgressIndicator());
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user == null) {
+        _currentView.value = const AuthView();
+      } else {
+        _currentView.value = HomepageView(controller: homepageController);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final homepageModel = HomepageModel();
-    final homepageController = HomepageController(homepageModel);
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          // If the user is logged in, show the game menu
-          User? user = snapshot.data;
-          if (user == null) {
-            return AuthView();  // Show sign-in page if not authenticated
-          } else {
-            return HomepageView(
-                controller: homepageController,
-            );  // Show main game menu if authenticated
-          }
-        } else {
-          return Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+    return ValueListenableBuilder<Widget>(
+      valueListenable: _currentView,
+      builder: (context, view, child) {
+        return Scaffold(body: Center(child: view));
       },
     );
   }
