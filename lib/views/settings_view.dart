@@ -1,12 +1,14 @@
 // settings_view.dart
 import 'package:flutter/material.dart';
 import 'package:minesweeper/controllers/auth_controller.dart';
+import 'package:minesweeper/controllers/settings_controller.dart';
 import '../controllers/profile_controller.dart';
 
 class SettingsView extends StatefulWidget {
-  final ProfileController profileController;
+  final SettingsController settingsController;
+  final String userId;
 
-  SettingsView({super.key, required this.profileController});
+  SettingsView({super.key, required this.settingsController, required this.userId});
 
   @override
   _SettingsViewState createState() => _SettingsViewState();
@@ -19,24 +21,26 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   void initState() {
     super.initState();
-    widget.profileController.loadUserProfile().then((_) {
+    widget.settingsController.loadUserProfile().then((_) {
       setState(() {
-        _usernameController.text = widget.profileController.userModel?.username ?? '';
-        _avatarController.text = widget.profileController.userModel?.avatar ?? '';
+        _usernameController.text = widget.settingsController.userModel?.username ?? '';
+        _avatarController.text = widget.settingsController.userModel?.avatar ?? '';
       });
     });
   }
 
   Future<void> _saveChanges() async {
-    await widget.profileController.updateUserProfile(
+    await widget.settingsController.updateUserProfile(
+      uid: widget.userId,
       username: _usernameController.text.trim(),
       avatarUrl: _avatarController.text.trim(),
     );
     Navigator.pop(context);
   }
 
+
   void _signOut() async {
-    await widget.profileController.signOut();
+    await widget.settingsController.signOut();
     Navigator.pushReplacementNamed(context, '/');
   }
 

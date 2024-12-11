@@ -58,8 +58,11 @@ class _ProfileViewState extends State<ProfileView> {
               iconSize: 36,
               tooltip: 'Profile',
               onPressed: () {
-                Navigator.pushNamed(context, '/profile/settings',
-                    arguments: widget.controller).then((_) => _loadProfile());
+                Navigator.pushNamed(
+                  context,
+                  '/profile/settings',
+                  arguments: user.uid
+                );
               }
           ),
         ],

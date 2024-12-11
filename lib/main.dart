@@ -12,6 +12,8 @@ import 'package:minesweeper/routing/authentication_wrapper.dart';
 import 'package:minesweeper/views/profile_view.dart';
 import 'package:minesweeper/views/settings_view.dart';
 
+import 'controllers/settings_controller.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -75,11 +77,12 @@ class MinesweeperApp extends StatelessWidget {
         '/': (context) => AuthenticationWrapper(),
         '/profile': (context) {
           final profileController = ProfileController();
-          return ProfileView(controller: profileController,);
+          return ProfileView(controller: profileController);
         },
         '/profile/settings': (context) {
-          final controller = ModalRoute.of(context)!.settings.arguments as ProfileController;
-          return SettingsView(profileController: controller);
+          final uid = ModalRoute.of(context)!.settings.arguments as String;
+          final settingsController = SettingsController();
+          return SettingsView(settingsController: settingsController, userId: uid);
         }
       },
     );
