@@ -35,9 +35,8 @@ class _SettingsViewState extends State<SettingsView> {
       username: _usernameController.text.trim(),
       avatarUrl: _avatarController.text.trim(),
     );
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
-
 
   void _signOut() async {
     await widget.settingsController.signOut();
