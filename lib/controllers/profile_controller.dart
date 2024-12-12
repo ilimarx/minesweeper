@@ -17,4 +17,15 @@ class ProfileController {
       userModel = UserModel.fromFirestore(doc);
     }
   }
+
+  Future<List<Map<String, dynamic>>> loadUserGames(String userId) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('games')
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+  }
 }

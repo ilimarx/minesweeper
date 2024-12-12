@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:minesweeper/models/user_model.dart';
-
 import '../controllers/profile_controller.dart';
+import '../theme/colors.dart';
 
 class ProfileView extends StatelessWidget {
   final ProfileController controller;
@@ -13,11 +13,15 @@ class ProfileView extends StatelessWidget {
     return controller.userModel;
   }
 
+  Future<List<Map<String, dynamic>>> _loadUserGames(String userId) async {
+    return await controller.loadUserGames(userId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0XFFE1E6C3),
+        backgroundColor: AppColors.surface,
         title: const Text('Profile'),
         centerTitle: true,
         actions: <Widget>[
@@ -52,47 +56,120 @@ class ProfileView extends StatelessWidget {
           }
 
           final user = snapshot.data!;
-          return Align(
-            alignment: Alignment.topCenter,
-            child: Container(
-              height: 240,
-              decoration: BoxDecoration(
-                color: Color(0xFFE1E6C3),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
+          return Column(
+            children: [
+              _buildProfileHeader(user),
+              Expanded(
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _loadUserGames(user.uid),
+                  builder: (context, gamesSnapshot) {
+                    if (gamesSnapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (gamesSnapshot.hasError) {
+                      return Center(child: Text('Error loading games: ${gamesSnapshot.error}'));
+                    }
+                    if (!gamesSnapshot.hasData || gamesSnapshot.data!.isEmpty) {
+                      return const Center(child: Text('No games found.'));
+                    }
+
+                    final games = gamesSnapshot.data!;
+                    return ListView.builder(
+                      itemCount: games.length,
+                      itemBuilder: (context, index) {
+                        final game = games[index];
+                        final isWin = game['result'] == 'win';
+                        final difficulty = game['mines'] == 8 ? 'Easy' : game['mines'] == 20 ? 'Hard' : 'Medium';
+                        final time = game['time'] ?? 0;
+                        final reverseIndex = games.length - index;
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                          padding: const EdgeInsets.all(8),
+                          height: 39,
+                          decoration: BoxDecoration(
+                            color: isWin ? AppColors.primary : AppColors.error,
+                            borderRadius: BorderRadius.circular(32),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                  margin: EdgeInsets.only(right: 6.0),
+                                  width: 50,
+                                  child: Text(
+                                      '$reverseIndex',
+                                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                                      textAlign: TextAlign.center)
+                              ),
+
+                              Text(difficulty, style: const TextStyle(color: Colors.white, fontSize: 16)),
+
+                              Container(
+                                margin: EdgeInsets.only(right: 6.0),
+                                width: 50,
+                                child: Text(
+                                    '${time}s',
+                                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                                    textAlign: TextAlign.center)
+                              ),
+
+
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  user.avatar != ''
-                      ? CircleAvatar(
-                    radius: 45,
-                    backgroundImage: NetworkImage(user.avatar),
-                  )
-                      : const Icon(Icons.account_circle, size: 90),
-                  const SizedBox(height: 7),
-                  Text(
-                    user.username,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 13),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildProfileStat('Rank', user.playedGames.toString()),
-                      const SizedBox(width: 30),
-                      _buildProfileStat('Best Time', '${user.bestTime}s'),
-                      const SizedBox(width: 30),
-                      _buildProfileStat('Played Games', user.playedGames.toString()),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(UserModel user) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        height: 240,
+        decoration: BoxDecoration(
+          color: Color(0xFFE1E6C3),
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(32),
+            bottomRight: Radius.circular(32),
+          ),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        margin: const EdgeInsets.only(bottom: 8.0),
+        child: Column(
+          children: [
+            user.avatar != ''
+                ? CircleAvatar(
+              radius: 45,
+              backgroundImage: NetworkImage(user.avatar),
+            )
+                : const Icon(Icons.account_circle, size: 90),
+            const SizedBox(height: 7),
+            Text(
+              user.username,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 13),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildProfileStat('Rank', user.playedGames.toString()),
+                const SizedBox(width: 30),
+                _buildProfileStat('Best Time', '${user.bestTime == -1 ? '— ' : user.bestTime}s'),
+                const SizedBox(width: 30),
+                _buildProfileStat('Played Games', user.playedGames.toString()),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -108,4 +185,3 @@ class ProfileView extends StatelessWidget {
     );
   }
 }
-
