@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:minesweeper/controllers/profile_controller.dart';
 
 import 'package:minesweeper/models/homepage_model.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
@@ -10,6 +11,8 @@ import 'package:minesweeper/views/homepage_view.dart';
 import 'package:minesweeper/routing/authentication_wrapper.dart';
 import 'package:minesweeper/views/profile_view.dart';
 import 'package:minesweeper/views/settings_view.dart';
+
+import 'controllers/settings_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +26,7 @@ class MinesweeperApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Initialize the Menu model and controller
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return MaterialApp(
       title: 'Minesweeper',
@@ -49,7 +53,7 @@ class MinesweeperApp extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: Color(0xFF576421),
             foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             textStyle: GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w600),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(32),
@@ -61,7 +65,7 @@ class MinesweeperApp extends StatelessWidget {
           style: TextButton.styleFrom(
             foregroundColor: Color(0xFF576421),
             textStyle: GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w600),
-            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(32),
             ),
@@ -72,12 +76,13 @@ class MinesweeperApp extends StatelessWidget {
       routes: {
         '/': (context) => AuthenticationWrapper(),
         '/profile': (context) {
-          final user = ModalRoute.of(context)!.settings.arguments as UserModel;
-          return ProfileView(user: user);
+          final profileController = ProfileController();
+          return ProfileView(controller: profileController);
         },
         '/profile/settings': (context) {
-          final user = ModalRoute.of(context)!.settings.arguments as UserModel;
-          return SettingsView(user: user);
+          final uid = ModalRoute.of(context)!.settings.arguments as String;
+          final settingsController = SettingsController();
+          return SettingsView(settingsController: settingsController, userId: uid);
         }
       },
     );
