@@ -53,10 +53,7 @@ class _GameViewState extends State<GameView> {
         appBar: AppBar(
           title: Consumer<GameController>(
             builder: (context, gameController, child) {
-              if (gameController.gameOver) {
-                return Text(gameController.gameWon ? 'You Won!' : 'Game Over');
-              }
-              return Text('Time: $_elapsedTime s');
+              return Center(child: Text('Time: $_elapsedTime s'));
             },
           ),
           actions: [
