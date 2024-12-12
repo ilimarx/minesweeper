@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:minesweeper/models/game_model.dart';
 import 'package:minesweeper/models/tile_model.dart';
@@ -6,9 +8,11 @@ class GameController extends ChangeNotifier {
   late GameModel _gameModel;
   bool _gameOver = false;
   bool _gameWon = false;
+  Stopwatch _stopwatch = Stopwatch();
 
   GameController(int rows, int cols, int mineCount) {
     _gameModel = GameModel(rows: rows, cols: cols, mineCount: mineCount);
+    _stopwatch.start();
   }
 
   List<List<TileModel>> get grid => _gameModel.grid;
@@ -20,7 +24,9 @@ class GameController extends ChangeNotifier {
 
     _gameModel.grid[row][col].setVisible = true;
     if (_gameModel.grid[row][col].hasMine) {
+      _stopwatch.stop();
       _gameOver = true;
+      _saveGame(false);
       notifyListeners();
       return;
     }
@@ -60,8 +66,37 @@ class GameController extends ChangeNotifier {
         }
       }
     }
+    _stopwatch.stop();
     _gameWon = true;
     _gameOver = true;
+    _saveGame(true);
+  }
+
+  Future<void> _saveGame(bool win) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    final int timeTaken = _stopwatch.elapsed.inSeconds;
+    final gameData = {
+      'result': win ? 'win' : 'lose',
+      'time': timeTaken,
+      'timestamp': FieldValue.serverTimestamp(),
+      'mines': _gameModel.mineCount,
+    };
+
+    final userRef = FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+    final gamesRef = userRef.collection('games');
+
+    await gamesRef.add(gameData);
+
+    if (win) {
+      final userDoc = await userRef.get();
+      final userBestTime = userDoc.data()?['bestTime'] ?? -1;
+
+      if (userBestTime == -1 || timeTaken < userBestTime) {
+        await userRef.update({'bestTime': timeTaken});
+      }
+    }
   }
 
   void resetGame(int rows, int cols, int mineCount) {
