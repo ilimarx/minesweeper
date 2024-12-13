@@ -17,6 +17,14 @@ class _ProfileViewState extends State<ProfileView> {
   Map<String, List<Map<String, dynamic>>> groupedGames = {};
   bool isLoading = true;
 
+  final Map<String, dynamic> _filters = {
+    'startDate': null as DateTime?,
+    'endDate': null as DateTime?,
+    'difficulty': null as int?,
+    'result': null as String?,
+    'reverseOrder': false,
+  };
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +49,25 @@ class _ProfileViewState extends State<ProfileView> {
         isLoading = false;
       });
     }
+  }
+
+  void _applyFilters() async {
+    widget.controller.filters = _filters;
+    final filteredGames = await widget.controller.loadFilteredGames(user!.uid);
+    setState(() {
+      groupedGames = filteredGames;
+    });
+  }
+
+  void _resetFilters() {
+    setState(() {
+      _filters['startDate'] = null;
+      _filters['endDate'] = null;
+      _filters['difficulty'] = null;
+      _filters['result'] = null;
+      _filters['reverseOrder'] = false;
+    });
+    _loadData();
   }
 
   @override
@@ -73,6 +100,7 @@ class _ProfileViewState extends State<ProfileView> {
           : Column(
         children: [
           _buildProfileHeader(),
+          _buildFilters(),
           Expanded(child: _buildGamesList()),
         ],
       ),
@@ -122,6 +150,102 @@ class _ProfileViewState extends State<ProfileView> {
           Text(value, style: const TextStyle(fontSize: 18)),
         ],
       ),
+    );
+  }
+
+  Widget _buildFilters() {
+    return ExpansionTile(
+      title: const Text("Filters"),
+      children: [
+        ListTile(
+          title: const Text("Start Date"),
+          trailing: IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime.now(),
+              );
+              if (date != null) {
+                setState(() {
+                  _filters['startDate'] = date;
+                });
+              }
+            },
+          ),
+        ),
+        ListTile(
+          title: const Text("End Date"),
+          trailing: IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime.now(),
+              );
+              if (date != null) {
+                setState(() {
+                  _filters['endDate'] = date;
+                });
+              }
+            },
+          ),
+        ),
+        DropdownButton<int?>(
+          hint: const Text("Difficulty"),
+          value: _filters['difficulty'],
+          items: [
+            DropdownMenuItem(value: 5, child: const Text("Easy")),
+            DropdownMenuItem(value: 10, child: const Text("Medium")),
+            DropdownMenuItem(value: 20, child: const Text("Hard")),
+          ],
+          onChanged: (value) {
+            setState(() {
+              _filters['difficulty'] = value;
+            });
+          },
+        ),
+        DropdownButton<String?>(
+          hint: const Text("Result"),
+          value: _filters['result'],
+          items: [
+            DropdownMenuItem(value: 'win', child: const Text("Win")),
+            DropdownMenuItem(value: 'lose', child: const Text("Lose")),
+          ],
+          onChanged: (value) {
+            setState(() {
+              _filters['result'] = value;
+            });
+          },
+        ),
+        SwitchListTile(
+          title: const Text("Reverse Order"),
+          value: _filters['reverseOrder'],
+          onChanged: (value) {
+            setState(() {
+              _filters['reverseOrder'] = value;
+            });
+          },
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              onPressed: _applyFilters,
+              child: const Text("Apply Filters"),
+            ),
+            ElevatedButton(
+              onPressed: _resetFilters,
+              child: const Text("Reset Filters"),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
