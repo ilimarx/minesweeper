@@ -24,7 +24,7 @@ class UserModel {
       email: data['email'] ?? '',
       username: data['username'] ?? '',
       avatar: data['avatar'] ?? '',
-      bestTime: data['bestTime'] ?? 0,
+      bestTime: data['bestTime'] ?? -1,
       playedGames: data['playedGames'] ?? 0
     );
   }
