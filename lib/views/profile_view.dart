@@ -62,14 +62,16 @@ class ProfileView extends StatelessWidget {
               }
 
               final groupedGames = gamesSnapshot.data!;
+              int globalIndex = groupedGames.values.fold(0, (sum, games) => sum + games.length);
+
               return Column(
                 children: [
-                  _buildProfileHeader(user, groupedGames.values.fold(0, (sum, games) => sum + games.length)),
+                  _buildProfileHeader(user, globalIndex),
                   Expanded(
                     child: ListView.builder(
                       itemCount: groupedGames.keys.length,
-                      itemBuilder: (context, index) {
-                        final date = groupedGames.keys.toList()[index];
+                      itemBuilder: (context, dateIndex) {
+                        final date = groupedGames.keys.toList()[dateIndex];
                         final games = groupedGames[date]!;
 
                         return Column(
@@ -85,9 +87,7 @@ class ProfileView extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            ...games.asMap().entries.map((entry) {
-                              final index = games.length - entry.key;
-                              final game = entry.value;
+                            ...games.map((game) {
                               final isWin = game['result'] == 'win';
                               final difficulty = game['mines'] == 5
                                   ? 'Easy'
@@ -110,7 +110,7 @@ class ProfileView extends StatelessWidget {
                                       margin: const EdgeInsets.only(left: 6.0),
                                       width: 80,
                                       child: Text(
-                                        '$index',
+                                        '${globalIndex--}',
                                         style: const TextStyle(color: Colors.white, fontSize: 16),
                                         textAlign: TextAlign.left,
                                       ),
