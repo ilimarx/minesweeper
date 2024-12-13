@@ -79,7 +79,7 @@ class ProfileView extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final game = games[index];
                         final isWin = game['result'] == 'win';
-                        final difficulty = game['mines'] == 8 ? 'Easy' : game['mines'] == 20 ? 'Hard' : 'Medium';
+                        final difficulty = game['mines'] == 5 ? 'Easy' : game['mines'] == 20 ? 'Hard' : 'Medium';
                         final time = game['time'] ?? 0;
                         final reverseIndex = games.length - index;
 
@@ -113,8 +113,6 @@ class ProfileView extends StatelessWidget {
                                     style: const TextStyle(color: Colors.white, fontSize: 16),
                                     textAlign: TextAlign.center)
                               ),
-
-
                             ],
                           ),
                         );
