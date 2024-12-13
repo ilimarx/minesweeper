@@ -28,4 +28,19 @@ class ProfileController {
 
     return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
   }
+
+  Future<int> getPlayedGamesCount(String userId) async {
+    try {
+      final gamesCollection = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('games')
+          .get();
+
+      return gamesCollection.docs.length;
+    } catch (e) {
+      print("Error fetching played games count: $e");
+      return 0;
+    }
+  }
 }

@@ -17,6 +17,16 @@ class ProfileView extends StatelessWidget {
     return await controller.loadUserGames(userId);
   }
 
+  String formatTime(int timeInSeconds) {
+    if (timeInSeconds < 60) {
+      return '${timeInSeconds}s';
+    }
+    final minutes = timeInSeconds ~/ 60;
+    final seconds = timeInSeconds % 60;
+    return '${minutes}m ${seconds}s';
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,23 +105,23 @@ class ProfileView extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
-                                  margin: EdgeInsets.only(right: 6.0),
-                                  width: 50,
+                                  margin: EdgeInsets.only(left: 6.0),
+                                  width: 80,
                                   child: Text(
                                       '$reverseIndex',
                                       style: const TextStyle(color: Colors.white, fontSize: 16),
-                                      textAlign: TextAlign.center)
+                                      textAlign: TextAlign.left)
                               ),
 
                               Text(difficulty, style: const TextStyle(color: Colors.white, fontSize: 16)),
 
                               Container(
                                 margin: EdgeInsets.only(right: 6.0),
-                                width: 50,
+                                width: 80,
                                 child: Text(
-                                    '${time}s',
+                                    formatTime(time),
                                     style: const TextStyle(color: Colors.white, fontSize: 16),
-                                    textAlign: TextAlign.center)
+                                    textAlign: TextAlign.right)
                               ),
                             ],
                           ),
@@ -161,9 +171,21 @@ class ProfileView extends StatelessWidget {
               children: [
                 _buildProfileStat('Rank', user.playedGames.toString()),
                 const SizedBox(width: 30),
-                _buildProfileStat('Best Time', '${user.bestTime == -1 ? '— ' : user.bestTime}s'),
+                _buildProfileStat('Best Time', user.bestTime == -1 ? '—' : formatTime(user.bestTime)),
                 const SizedBox(width: 30),
-                _buildProfileStat('Played Games', user.playedGames.toString()),
+                FutureBuilder<int>(
+                  future: controller.getPlayedGamesCount(user.uid),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text('...');
+                    }
+                    if (snapshot.hasError) {
+                      return const Text('Error');
+                    }
+                    final playedGamesCount = snapshot.data ?? 0;
+                    return _buildProfileStat('Played Games', playedGamesCount.toString());
+                  },
+                ),
               ],
             ),
           ],
