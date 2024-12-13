@@ -8,16 +8,6 @@ class ProfileController {
 
   UserModel? userModel;
 
-  Future<void> loadUserProfile() async {
-    User? currentUser = _auth.currentUser;
-    if (currentUser == null) return;
-
-    DocumentSnapshot doc = await _firestore.collection('users').doc(currentUser.uid).get();
-    if (doc.exists) {
-      userModel = UserModel.fromFirestore(doc);
-    }
-  }
-
   Future<UserModel?> loadProfile() async {
     User? currentUser = _auth.currentUser;
     if (currentUser == null) return null;
@@ -39,21 +29,6 @@ class ProfileController {
         .get();
 
     return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-  }
-
-  Future<int> getPlayedGamesCount(String userId) async {
-    try {
-      final gamesCollection = await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('games')
-          .get();
-
-      return gamesCollection.docs.length;
-    } catch (e) {
-      print("Error fetching played games count: $e");
-      return 0;
-    }
   }
 
   Future<Map<String, List<Map<String, dynamic>>>> groupUserGamesByDate(String userId) async {
