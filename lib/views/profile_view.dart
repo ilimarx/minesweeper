@@ -19,6 +19,8 @@ class _ProfileViewState extends State<ProfileView> {
   bool isLoadingGames = true;
   int playedGamesCount = 0;
 
+  Map<String, int> dateGlobalIndices = {};
+
   @override
   void initState() {
     super.initState();
@@ -34,9 +36,20 @@ class _ProfileViewState extends State<ProfileView> {
     final loadedUser = await widget.controller.loadProfile();
     if (loadedUser != null) {
       final gamesData = await widget.controller.groupUserGamesByDate(loadedUser.uid);
+
+      int currentIndex = gamesData.values.fold(0, (sum, games) => sum + games.length);
+      final newDateGlobalIndices = <String, int>{};
+      for (final date in gamesData.keys) {
+        if (!newDateGlobalIndices.containsKey(date)) {
+          newDateGlobalIndices[date] = currentIndex;
+        }
+        currentIndex -= gamesData[date]!.length;
+      }
+
       setState(() {
         user = loadedUser;
         groupedGames = gamesData;
+        dateGlobalIndices = newDateGlobalIndices;
         playedGamesCount = groupedGames.values.fold(0, (sum, games) => sum + games.length);
         isLoadingProfile = false;
         isLoadingGames = false;
@@ -150,12 +163,17 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Widget _buildGamesList() {
-    int globalIndex = playedGamesCount;
     return ListView.builder(
       itemCount: groupedGames.keys.length,
       itemBuilder: (context, dateIndex) {
         final date = groupedGames.keys.toList()[dateIndex];
         final games = groupedGames[date]!;
+
+        if (!dateGlobalIndices.containsKey(date)) {
+          return const SizedBox.shrink();
+        }
+
+        int globalIndex = dateGlobalIndices[date]!;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,6 +197,8 @@ class _ProfileViewState extends State<ProfileView> {
                   : 'Medium';
               final time = game['time'] ?? 0;
 
+              final gameIndex = globalIndex--;
+
               return Container(
                 margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                 padding: const EdgeInsets.all(8),
@@ -193,7 +213,7 @@ class _ProfileViewState extends State<ProfileView> {
                       margin: const EdgeInsets.only(left: 6.0),
                       width: 80,
                       child: Text(
-                        '${globalIndex--}',
+                        '$gameIndex',
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                         textAlign: TextAlign.left,
                       ),
