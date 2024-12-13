@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:minesweeper/models/user_model.dart';
 import '../controllers/profile_controller.dart';
@@ -13,8 +14,20 @@ class ProfileView extends StatelessWidget {
     return controller.userModel;
   }
 
-  Future<List<Map<String, dynamic>>> _loadUserGames(String userId) async {
-    return await controller.loadUserGames(userId);
+  Future<Map<String, List<Map<String, dynamic>>>> _groupUserGamesByDate(String userId) async {
+    final games = await controller.loadUserGames(userId);
+
+    final Map<String, List<Map<String, dynamic>>> groupedGames = {};
+    for (var game in games) {
+      final timestamp = (game['timestamp'] as Timestamp).toDate();
+      final dateKey = '${timestamp.year}-${timestamp.month.toString().padLeft(2, '0')}-${timestamp.day.toString().padLeft(2, '0')}';
+      if (!groupedGames.containsKey(dateKey)) {
+        groupedGames[dateKey] = [];
+      }
+      groupedGames[dateKey]!.add(game);
+    }
+
+    return groupedGames;
   }
 
   String formatTime(int timeInSeconds) {
@@ -25,7 +38,6 @@ class ProfileView extends StatelessWidget {
     final seconds = timeInSeconds % 60;
     return '${minutes}m ${seconds}s';
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -54,91 +66,117 @@ class ProfileView extends StatelessWidget {
       ),
       body: FutureBuilder<UserModel?>(
         future: _loadProfile(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+        builder: (context, profileSnapshot) {
+          if (profileSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error loading profile: ${snapshot.error}'));
+          if (profileSnapshot.hasError) {
+            return Center(child: Text('Error loading profile: ${profileSnapshot.error}'));
           }
-          if (!snapshot.hasData || snapshot.data == null) {
+          if (!profileSnapshot.hasData || profileSnapshot.data == null) {
             return const Center(child: Text('No user data found.'));
           }
 
-          final user = snapshot.data!;
-          return Column(
-            children: [
-              _buildProfileHeader(user),
-              Expanded(
-                child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _loadUserGames(user.uid),
-                  builder: (context, gamesSnapshot) {
-                    if (gamesSnapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (gamesSnapshot.hasError) {
-                      return Center(child: Text('Error loading games: ${gamesSnapshot.error}'));
-                    }
-                    if (!gamesSnapshot.hasData || gamesSnapshot.data!.isEmpty) {
-                      return const Center(child: Text('No games found.'));
-                    }
+          final user = profileSnapshot.data!;
+          return FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
+            future: _groupUserGamesByDate(user.uid),
+            builder: (context, gamesSnapshot) {
+              if (gamesSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (gamesSnapshot.hasError) {
+                return Center(child: Text('Error loading games: ${gamesSnapshot.error}'));
+              }
+              if (!gamesSnapshot.hasData || gamesSnapshot.data!.isEmpty) {
+                return const Center(child: Text('No games found.'));
+              }
 
-                    final games = gamesSnapshot.data!;
-                    return ListView.builder(
-                      itemCount: games.length,
+              final groupedGames = gamesSnapshot.data!;
+              return Column(
+                children: [
+                  _buildProfileHeader(user, groupedGames.values.fold(0, (sum, games) => sum + games.length)),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: groupedGames.keys.length,
                       itemBuilder: (context, index) {
-                        final game = games[index];
-                        final isWin = game['result'] == 'win';
-                        final difficulty = game['mines'] == 5 ? 'Easy' : game['mines'] == 20 ? 'Hard' : 'Medium';
-                        final time = game['time'] ?? 0;
-                        final reverseIndex = games.length - index;
+                        final date = groupedGames.keys.toList()[index];
+                        final games = groupedGames[date]!;
 
-                        return Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                          padding: const EdgeInsets.all(8),
-                          height: 39,
-                          decoration: BoxDecoration(
-                            color: isWin ? AppColors.primary : AppColors.error,
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                  margin: EdgeInsets.only(left: 6.0),
-                                  width: 80,
-                                  child: Text(
-                                      '$reverseIndex',
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                date,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            ...games.asMap().entries.map((entry) {
+                              final index = games.length - entry.key;
+                              final game = entry.value;
+                              final isWin = game['result'] == 'win';
+                              final difficulty = game['mines'] == 5
+                                  ? 'Easy'
+                                  : game['mines'] == 20
+                                  ? 'Hard'
+                                  : 'Medium';
+                              final time = game['time'] ?? 0;
+
+                              return Container(
+                                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: isWin ? AppColors.primary : AppColors.error,
+                                  borderRadius: BorderRadius.circular(32),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(left: 6.0),
+                                      width: 80,
+                                      child: Text(
+                                        '$index',
+                                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ),
+                                    Text(
+                                      difficulty,
                                       style: const TextStyle(color: Colors.white, fontSize: 16),
-                                      textAlign: TextAlign.left)
-                              ),
-
-                              Text(difficulty, style: const TextStyle(color: Colors.white, fontSize: 16)),
-
-                              Container(
-                                margin: EdgeInsets.only(right: 6.0),
-                                width: 80,
-                                child: Text(
-                                    formatTime(time),
-                                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                                    textAlign: TextAlign.right)
-                              ),
-                            ],
-                          ),
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.only(right: 6.0),
+                                      width: 80,
+                                      child: Text(
+                                        formatTime(time),
+                                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                                        textAlign: TextAlign.right,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ],
                         );
                       },
-                    );
-                  },
-                ),
-              ),
-            ],
+                    ),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),
     );
   }
 
-  Widget _buildProfileHeader(UserModel user) {
+  Widget _buildProfileHeader(UserModel user, int playedGamesCount) {
     return Align(
       alignment: Alignment.topCenter,
       child: Container(
@@ -173,19 +211,7 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(width: 30),
                 _buildProfileStat('Best Time', user.bestTime == -1 ? '—' : formatTime(user.bestTime)),
                 const SizedBox(width: 30),
-                FutureBuilder<int>(
-                  future: controller.getPlayedGamesCount(user.uid),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Text('...');
-                    }
-                    if (snapshot.hasError) {
-                      return const Text('Error');
-                    }
-                    final playedGamesCount = snapshot.data ?? 0;
-                    return _buildProfileStat('Played Games', playedGamesCount.toString());
-                  },
-                ),
+                _buildProfileStat('Played Games', '$playedGamesCount'),
               ],
             ),
           ],
