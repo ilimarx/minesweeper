@@ -9,36 +9,6 @@ class ProfileView extends StatelessWidget {
 
   ProfileView({super.key, required this.controller});
 
-  Future<UserModel?> _loadProfile() async {
-    await controller.loadUserProfile();
-    return controller.userModel;
-  }
-
-  Future<Map<String, List<Map<String, dynamic>>>> _groupUserGamesByDate(String userId) async {
-    final games = await controller.loadUserGames(userId);
-
-    final Map<String, List<Map<String, dynamic>>> groupedGames = {};
-    for (var game in games) {
-      final timestamp = (game['timestamp'] as Timestamp).toDate();
-      final dateKey = '${timestamp.year}-${timestamp.month.toString().padLeft(2, '0')}-${timestamp.day.toString().padLeft(2, '0')}';
-      if (!groupedGames.containsKey(dateKey)) {
-        groupedGames[dateKey] = [];
-      }
-      groupedGames[dateKey]!.add(game);
-    }
-
-    return groupedGames;
-  }
-
-  String formatTime(int timeInSeconds) {
-    if (timeInSeconds < 60) {
-      return '${timeInSeconds}s';
-    }
-    final minutes = timeInSeconds ~/ 60;
-    final seconds = timeInSeconds % 60;
-    return '${minutes}m ${seconds}s';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,14 +28,14 @@ class ProfileView extends StatelessWidget {
                 arguments: controller.userModel?.uid,
               );
               if (result == true) {
-                _loadProfile();
+                controller.loadProfile();
               }
             },
           ),
         ],
       ),
       body: FutureBuilder<UserModel?>(
-        future: _loadProfile(),
+        future: controller.loadProfile(),
         builder: (context, profileSnapshot) {
           if (profileSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -79,7 +49,7 @@ class ProfileView extends StatelessWidget {
 
           final user = profileSnapshot.data!;
           return FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
-            future: _groupUserGamesByDate(user.uid),
+            future: controller.groupUserGamesByDate(user.uid),
             builder: (context, gamesSnapshot) {
               if (gamesSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -153,7 +123,7 @@ class ProfileView extends StatelessWidget {
                                       margin: const EdgeInsets.only(right: 6.0),
                                       width: 80,
                                       child: Text(
-                                        formatTime(time),
+                                        controller.formatTime(time),
                                         style: const TextStyle(color: Colors.white, fontSize: 16),
                                         textAlign: TextAlign.right,
                                       ),
@@ -209,7 +179,7 @@ class ProfileView extends StatelessWidget {
               children: [
                 _buildProfileStat('Rank', user.playedGames.toString()),
                 const SizedBox(width: 30),
-                _buildProfileStat('Best Time', user.bestTime == -1 ? '—' : formatTime(user.bestTime)),
+                _buildProfileStat('Best Time', user.bestTime == -1 ? '—' : controller.formatTime(user.bestTime)),
                 const SizedBox(width: 30),
                 _buildProfileStat('Played Games', '$playedGamesCount'),
               ],
