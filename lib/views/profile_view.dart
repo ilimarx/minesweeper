@@ -15,49 +15,30 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
   UserModel? user;
   Map<String, List<Map<String, dynamic>>> groupedGames = {};
-  bool isLoadingProfile = true;
-  bool isLoadingGames = true;
-  int playedGamesCount = 0;
-
-  Map<String, int> dateGlobalIndices = {};
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadProfileData();
+    _loadData();
   }
 
-  Future<void> _loadProfileData() async {
+  Future<void> _loadData() async {
     setState(() {
-      isLoadingProfile = true;
-      isLoadingGames = true;
+      isLoading = true;
     });
 
     final loadedUser = await widget.controller.loadProfile();
     if (loadedUser != null) {
-      final gamesData = await widget.controller.groupUserGamesByDate(loadedUser.uid);
-
-      int currentIndex = gamesData.values.fold(0, (sum, games) => sum + games.length);
-      final newDateGlobalIndices = <String, int>{};
-      for (final date in gamesData.keys) {
-        if (!newDateGlobalIndices.containsKey(date)) {
-          newDateGlobalIndices[date] = currentIndex;
-        }
-        currentIndex -= gamesData[date]!.length;
-      }
-
+      final gamesData = await widget.controller.groupUserGamesWithIndices(loadedUser.uid);
       setState(() {
         user = loadedUser;
         groupedGames = gamesData;
-        dateGlobalIndices = newDateGlobalIndices;
-        playedGamesCount = groupedGames.values.fold(0, (sum, games) => sum + games.length);
-        isLoadingProfile = false;
-        isLoadingGames = false;
+        isLoading = false;
       });
     } else {
       setState(() {
-        isLoadingProfile = false;
-        isLoadingGames = false;
+        isLoading = false;
       });
     }
   }
@@ -72,8 +53,6 @@ class _ProfileViewState extends State<ProfileView> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.settings),
-            iconSize: 36,
-            tooltip: 'Settings',
             onPressed: () async {
               final result = await Navigator.pushNamed(
                 context,
@@ -81,72 +60,56 @@ class _ProfileViewState extends State<ProfileView> {
                 arguments: user?.uid,
               );
               if (result == true) {
-                _loadProfileData();
+                _loadData();
               }
             },
           ),
         ],
       ),
-      body: isLoadingProfile
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : user == null
           ? const Center(child: Text('No user data found.'))
           : Column(
         children: [
           _buildProfileHeader(),
-          Expanded(
-            child: isLoadingGames
-                ? const Center(child: CircularProgressIndicator())
-                : groupedGames.isEmpty
-                ? const Center(child: Text('No games found.'))
-                : _buildGamesList(),
-          ),
+          Expanded(child: _buildGamesList()),
         ],
       ),
     );
   }
 
   Widget _buildProfileHeader() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: 240,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE1E6C3),
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(32),
-            bottomRight: Radius.circular(32),
+    return Container(
+      height: 240,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE1E6C3),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+      ),
+      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.only(bottom: 8.0),
+      child: Column(
+        children: [
+          user!.avatar.isNotEmpty
+              ? CircleAvatar(radius: 45, backgroundImage: NetworkImage(user!.avatar))
+              : const Icon(Icons.account_circle, size: 90),
+          const SizedBox(height: 7),
+          Text(user!.username, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 13),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildProfileStat('Rank', user!.playedGames.toString()),
+              const SizedBox(width: 30),
+              _buildProfileStat('Best Time', widget.controller.formatTime(user!.bestTime)),
+              const SizedBox(width: 30),
+              _buildProfileStat('Played Games', groupedGames.values.fold(0, (sum, games) => sum + games.length).toString()),
+            ],
           ),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        margin: const EdgeInsets.only(bottom: 8.0),
-        child: Column(
-          children: [
-            user!.avatar != ''
-                ? CircleAvatar(
-              radius: 45,
-              backgroundImage: NetworkImage(user!.avatar),
-            )
-                : const Icon(Icons.account_circle, size: 90),
-            const SizedBox(height: 7),
-            Text(
-              user!.username,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 13),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildProfileStat('Rank', user!.playedGames.toString()),
-                const SizedBox(width: 30),
-                _buildProfileStat('Best Time',
-                    user!.bestTime == -1 ? '—' : widget.controller.formatTime(user!.bestTime)),
-                const SizedBox(width: 30),
-                _buildProfileStat('Played Games', '$playedGamesCount'),
-              ],
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -163,30 +126,17 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Widget _buildGamesList() {
-    return ListView.builder(
-      itemCount: groupedGames.keys.length,
-      itemBuilder: (context, dateIndex) {
-        final date = groupedGames.keys.toList()[dateIndex];
-        final games = groupedGames[date]!;
-
-        if (!dateGlobalIndices.containsKey(date)) {
-          return const SizedBox.shrink();
-        }
-
-        int globalIndex = dateGlobalIndices[date]!;
+    return ListView(
+      children: groupedGames.entries.map((entry) {
+        final date = entry.key;
+        final games = entry.value;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                date,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: Text(date, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
             ...games.map((game) {
               final isWin = game['result'] == 'win';
@@ -196,8 +146,7 @@ class _ProfileViewState extends State<ProfileView> {
                   ? 'Hard'
                   : 'Medium';
               final time = game['time'] ?? 0;
-
-              final gameIndex = globalIndex--;
+              final index = game['index'];
 
               return Container(
                 margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
@@ -213,7 +162,7 @@ class _ProfileViewState extends State<ProfileView> {
                       margin: const EdgeInsets.only(left: 6.0),
                       width: 80,
                       child: Text(
-                        '$gameIndex',
+                        '$index',
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                         textAlign: TextAlign.left,
                       ),
@@ -237,7 +186,7 @@ class _ProfileViewState extends State<ProfileView> {
             }).toList(),
           ],
         );
-      },
+      }).toList(),
     );
   }
 }
