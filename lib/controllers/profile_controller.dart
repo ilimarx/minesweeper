@@ -88,11 +88,11 @@ class ProfileController {
       }).toList();
     }
 
-    if (filters['difficulty'] != null) {
+    if (filters['difficulty'] != null && filters['difficulty'] != -1) {
       games = games.where((game) => game['mines'] == filters['difficulty']).toList();
     }
 
-    if (filters['result'] != null) {
+    if (filters['result'] != null && filters['result'] != 'all') {
       games = games.where((game) => game['result'] == filters['result']).toList();
     }
 

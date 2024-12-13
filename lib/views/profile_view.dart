@@ -199,6 +199,7 @@ class _ProfileViewState extends State<ProfileView> {
           hint: const Text("Difficulty"),
           value: _filters['difficulty'],
           items: [
+            DropdownMenuItem(value: -1, child: const Text("All")),
             DropdownMenuItem(value: 5, child: const Text("Easy")),
             DropdownMenuItem(value: 10, child: const Text("Medium")),
             DropdownMenuItem(value: 20, child: const Text("Hard")),
@@ -213,6 +214,7 @@ class _ProfileViewState extends State<ProfileView> {
           hint: const Text("Result"),
           value: _filters['result'],
           items: [
+            DropdownMenuItem(value: 'all', child: const Text("All")),
             DropdownMenuItem(value: 'win', child: const Text("Win")),
             DropdownMenuItem(value: 'lose', child: const Text("Lose")),
           ],
