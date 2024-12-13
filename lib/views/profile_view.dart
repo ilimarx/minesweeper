@@ -16,6 +16,7 @@ class _ProfileViewState extends State<ProfileView> {
   UserModel? user;
   Map<String, List<Map<String, dynamic>>> groupedGames = {};
   bool isLoading = true;
+  bool isFiltersVisible = false;
 
   final Map<String, dynamic> _filters = {
     'startDate': null as DateTime?,
@@ -56,6 +57,7 @@ class _ProfileViewState extends State<ProfileView> {
     final filteredGames = await widget.controller.loadFilteredGames(user!.uid);
     setState(() {
       groupedGames = filteredGames;
+      isFiltersVisible = false; // Сворачиваем фильтры
     });
   }
 
@@ -66,6 +68,7 @@ class _ProfileViewState extends State<ProfileView> {
       _filters['difficulty'] = null;
       _filters['result'] = null;
       _filters['reverseOrder'] = false;
+      isFiltersVisible = false; // Сворачиваем фильтры
     });
     _loadData();
   }
@@ -134,7 +137,11 @@ class _ProfileViewState extends State<ProfileView> {
               const SizedBox(width: 30),
               _buildProfileStat('Best Time', widget.controller.formatTime(user!.bestTime)),
               const SizedBox(width: 30),
-              _buildProfileStat('Played Games', groupedGames.values.fold(0, (sum, games) => sum + games.length).toString()),
+              _buildProfileStat(
+                  'Played Games',
+                  groupedGames.values
+                      .fold(0, (sum, games) => sum + games.length)
+                      .toString()),
             ],
           ),
         ],
@@ -154,98 +161,129 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Widget _buildFilters() {
-    return ExpansionTile(
-      title: const Text("Filters"),
+    return Column(
       children: [
-        ListTile(
-          title: const Text("Start Date"),
-          trailing: IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: () async {
-              final date = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime.now(),
-              );
-              if (date != null) {
-                setState(() {
-                  _filters['startDate'] = date;
-                });
-              }
-            },
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              isFiltersVisible = !isFiltersVisible;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Filters", style: TextStyle(fontSize: 16)),
+                Icon(
+                  isFiltersVisible ? Icons.expand_less : Icons.expand_more,
+                ),
+              ],
+            ),
           ),
         ),
-        ListTile(
-          title: const Text("End Date"),
-          trailing: IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: () async {
-              final date = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime.now(),
-              );
-              if (date != null) {
-                setState(() {
-                  _filters['endDate'] = date;
-                });
-              }
-            },
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          height: isFiltersVisible ? null : 0,
+          child: Column(
+            children: [
+              ListTile(
+                title: const Text("Start Date"),
+                trailing: IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _filters['startDate'] = date;
+                      });
+                    }
+                  },
+                ),
+              ),
+              ListTile(
+                title: const Text("End Date"),
+                trailing: IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _filters['endDate'] = date;
+                      });
+                    }
+                  },
+                ),
+              ),
+              SwitchListTile(
+                title: const Text("Reverse Order"),
+                value: _filters['reverseOrder'],
+                onChanged: (value) {
+                  setState(() {
+                    _filters['reverseOrder'] = value;
+                  });
+                },
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  DropdownButton<int?>(
+                    hint: const Text("Difficulty"),
+                    value: _filters['difficulty'],
+                    items: [
+                      DropdownMenuItem(value: -1, child: const Text("All")),
+                      DropdownMenuItem(value: 5, child: const Text("Easy")),
+                      DropdownMenuItem(value: 10, child: const Text("Medium")),
+                      DropdownMenuItem(value: 20, child: const Text("Hard")),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filters['difficulty'] = value;
+                      });
+                    },
+                  ),
+                  DropdownButton<String?>(
+                    hint: const Text("Result"),
+                    value: _filters['result'],
+                    items: [
+                      DropdownMenuItem(value: 'all', child: const Text("All")),
+                      DropdownMenuItem(value: 'win', child: const Text("Win")),
+                      DropdownMenuItem(value: 'lose', child: const Text("Lose")),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filters['result'] = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _applyFilters,
+                    child: const Text("Apply Filters"),
+                  ),
+                  ElevatedButton(
+                    onPressed: _resetFilters,
+                    child: const Text("Reset Filters"),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ),
-        DropdownButton<int?>(
-          hint: const Text("Difficulty"),
-          value: _filters['difficulty'],
-          items: [
-            DropdownMenuItem(value: -1, child: const Text("All")),
-            DropdownMenuItem(value: 5, child: const Text("Easy")),
-            DropdownMenuItem(value: 10, child: const Text("Medium")),
-            DropdownMenuItem(value: 20, child: const Text("Hard")),
-          ],
-          onChanged: (value) {
-            setState(() {
-              _filters['difficulty'] = value;
-            });
-          },
-        ),
-        DropdownButton<String?>(
-          hint: const Text("Result"),
-          value: _filters['result'],
-          items: [
-            DropdownMenuItem(value: 'all', child: const Text("All")),
-            DropdownMenuItem(value: 'win', child: const Text("Win")),
-            DropdownMenuItem(value: 'lose', child: const Text("Lose")),
-          ],
-          onChanged: (value) {
-            setState(() {
-              _filters['result'] = value;
-            });
-          },
-        ),
-        SwitchListTile(
-          title: const Text("Reverse Order"),
-          value: _filters['reverseOrder'],
-          onChanged: (value) {
-            setState(() {
-              _filters['reverseOrder'] = value;
-            });
-          },
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              onPressed: _applyFilters,
-              child: const Text("Apply Filters"),
-            ),
-            ElevatedButton(
-              onPressed: _resetFilters,
-              child: const Text("Reset Filters"),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-            ),
-          ],
         ),
       ],
     );
