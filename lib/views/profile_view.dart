@@ -39,7 +39,8 @@ class _ProfileViewState extends State<ProfileView> {
 
     final loadedUser = await widget.controller.loadProfile();
     if (loadedUser != null) {
-      final gamesData = await widget.controller.groupUserGamesWithIndices(loadedUser.uid);
+      final games = await widget.controller.loadUserGames(loadedUser.uid);
+      final gamesData = widget.controller.groupUserGames(games);
       setState(() {
         user = loadedUser;
         groupedGames = gamesData;

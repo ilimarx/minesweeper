@@ -28,38 +28,6 @@ class ProfileController {
     return userModel;
   }
 
-  Future<Map<String, List<Map<String, dynamic>>>> groupUserGamesWithIndices(String userId) async {
-    final games = await loadUserGames(userId);
-
-    final Map<String, List<Map<String, dynamic>>> groupedGames = {};
-    int currentIndex = games.length;
-
-    for (var game in games) {
-      final timestamp = (game['timestamp'] as Timestamp).toDate();
-      final dateKey = '${timestamp.year}-${timestamp.month.toString().padLeft(2, '0')}-${timestamp.day.toString().padLeft(2, '0')}';
-
-      game['index'] = currentIndex--;
-      groupedGames.putIfAbsent(dateKey, () => []).add(game);
-    }
-
-    return groupedGames;
-  }
-
-  Map<String, List<Map<String, dynamic>>> groupUserGames(List<Map<String, dynamic>> games) {
-    final Map<String, List<Map<String, dynamic>>> groupedGames = {};
-    int currentIndex = games.length;
-
-    for (var game in games) {
-      final timestamp = (game['timestamp'] as Timestamp).toDate();
-      final dateKey = '${timestamp.year}-${timestamp.month.toString().padLeft(2, '0')}-${timestamp.day.toString().padLeft(2, '0')}';
-
-      game['index'] = currentIndex--;
-      groupedGames.putIfAbsent(dateKey, () => []).add(game);
-    }
-
-    return groupedGames;
-  }
-
   Future<List<Map<String, dynamic>>> loadUserGames(String userId) async {
     QuerySnapshot snapshot = await _firestore
         .collection('users')
@@ -69,6 +37,22 @@ class ProfileController {
         .get();
 
     return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+  }
+
+  Map<String, List<Map<String, dynamic>>> groupUserGames(List<Map<String, dynamic>> games) {
+    final Map<String, List<Map<String, dynamic>>> groupedGames = {};
+    int currentIndex = filters['reverseOrder'] == true ? 1 : games.length;
+
+    for (var game in games) {
+      final timestamp = (game['timestamp'] as Timestamp).toDate();
+      final dateKey = '${timestamp.year}-${timestamp.month.toString().padLeft(2, '0')}-${timestamp.day.toString().padLeft(2, '0')}';
+
+      game['index'] = currentIndex;
+      currentIndex += filters['reverseOrder'] == true ? 1 : -1;
+      groupedGames.putIfAbsent(dateKey, () => []).add(game);
+    }
+
+    return groupedGames;
   }
 
   Future<Map<String, List<Map<String, dynamic>>>> loadFilteredGames(String userId) async {
