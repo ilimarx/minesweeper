@@ -7,6 +7,7 @@ import 'package:minesweeper/controllers/profile_controller.dart';
 import 'package:minesweeper/models/homepage_model.dart';
 import 'package:minesweeper/controllers/homepage_controller.dart';
 import 'package:minesweeper/models/user_model.dart';
+import 'package:minesweeper/theme/colors.dart';
 import 'package:minesweeper/views/homepage_view.dart';
 import 'package:minesweeper/routing/authentication_wrapper.dart';
 import 'package:minesweeper/views/profile_view.dart';
@@ -33,7 +34,7 @@ class MinesweeperApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-            seedColor: Color(0xFF576421),
+            seedColor: AppColors.primary,
             brightness: Brightness.light
         ),
         textTheme: TextTheme(
@@ -51,7 +52,7 @@ class MinesweeperApp extends StatelessWidget {
 
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF576421),
+            backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             textStyle: GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w600),
@@ -63,7 +64,7 @@ class MinesweeperApp extends StatelessWidget {
 
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: Color(0xFF576421),
+            foregroundColor: AppColors.primary,
             textStyle: GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w600),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             shape: RoundedRectangleBorder(

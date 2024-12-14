@@ -115,7 +115,7 @@ class _ProfileViewState extends State<ProfileView> {
     return Container(
       height: 240,
       decoration: BoxDecoration(
-        color: const Color(0xFFE1E6C3),
+        color: AppColors.surface,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
@@ -132,17 +132,27 @@ class _ProfileViewState extends State<ProfileView> {
           Text(user!.username, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 13),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildProfileStat('Rank', user!.playedGames.toString()),
-              const SizedBox(width: 30),
-              _buildProfileStat('Best Time', widget.controller.formatTime(user!.bestTime)),
-              const SizedBox(width: 30),
-              _buildProfileStat(
-                  'Played Games',
-                  groupedGames.values
-                      .fold(0, (sum, games) => sum + games.length)
-                      .toString()),
+              Container(
+                margin: const EdgeInsets.only(left: 4.0),
+                width: 110,
+                child: _buildProfileStat('Rank', user!.playedGames.toString())
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: _buildProfileStat('Best Time', widget.controller.formatTime(user!.bestTime)),
+              ),
+              Container(
+                margin: const EdgeInsets.only(right: 4.0),
+                width: 110,
+                child: _buildProfileStat(
+                    'Played Games',
+                    groupedGames.values
+                        .fold(0, (sum, games) => sum + games.length)
+                        .toString()
+                )
+              ),
             ],
           ),
         ],
