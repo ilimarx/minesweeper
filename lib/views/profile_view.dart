@@ -57,7 +57,7 @@ class _ProfileViewState extends State<ProfileView> {
     final filteredGames = await widget.controller.loadFilteredGames(user!.uid);
     setState(() {
       groupedGames = filteredGames;
-      isFiltersVisible = false; // Сворачиваем фильтры
+      isFiltersVisible = false;
     });
   }
 
@@ -68,7 +68,7 @@ class _ProfileViewState extends State<ProfileView> {
       _filters['difficulty'] = null;
       _filters['result'] = null;
       _filters['reverseOrder'] = false;
-      isFiltersVisible = false; // Сворачиваем фильтры
+      isFiltersVisible = false;
     });
     _loadData();
   }
@@ -182,11 +182,45 @@ class _ProfileViewState extends State<ProfileView> {
             ),
           ),
         ),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          height: isFiltersVisible ? null : 0,
-          child: Column(
+        AnimatedCrossFade(
+          duration: const Duration(milliseconds: 100),
+          firstChild: SizedBox.shrink(),
+          secondChild: Column(
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  DropdownButton<int?>(
+                    hint: const Text("Difficulty"),
+                    value: _filters['difficulty'],
+                    items: [
+                      DropdownMenuItem(value: -1, child: const Text("All")),
+                      DropdownMenuItem(value: 5, child: const Text("Easy")),
+                      DropdownMenuItem(value: 10, child: const Text("Medium")),
+                      DropdownMenuItem(value: 20, child: const Text("Hard")),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filters['difficulty'] = value;
+                      });
+                    },
+                  ),
+                  DropdownButton<String?>(
+                    hint: const Text("Result"),
+                    value: _filters['result'],
+                    items: [
+                      DropdownMenuItem(value: 'all', child: const Text("All")),
+                      DropdownMenuItem(value: 'win', child: const Text("Win")),
+                      DropdownMenuItem(value: 'lose', child: const Text("Lose")),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filters['result'] = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
               ListTile(
                 title: const Text("Start Date"),
                 trailing: IconButton(
@@ -237,57 +271,27 @@ class _ProfileViewState extends State<ProfileView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  DropdownButton<int?>(
-                    hint: const Text("Difficulty"),
-                    value: _filters['difficulty'],
-                    items: [
-                      DropdownMenuItem(value: -1, child: const Text("All")),
-                      DropdownMenuItem(value: 5, child: const Text("Easy")),
-                      DropdownMenuItem(value: 10, child: const Text("Medium")),
-                      DropdownMenuItem(value: 20, child: const Text("Hard")),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _filters['difficulty'] = value;
-                      });
-                    },
-                  ),
-                  DropdownButton<String?>(
-                    hint: const Text("Result"),
-                    value: _filters['result'],
-                    items: [
-                      DropdownMenuItem(value: 'all', child: const Text("All")),
-                      DropdownMenuItem(value: 'win', child: const Text("Win")),
-                      DropdownMenuItem(value: 'lose', child: const Text("Lose")),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _filters['result'] = value;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: _applyFilters,
-                    child: const Text("Apply Filters"),
-                  ),
                   ElevatedButton(
                     onPressed: _resetFilters,
                     child: const Text("Reset Filters"),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                   ),
+                  ElevatedButton(
+                    onPressed: _applyFilters,
+                    child: const Text("Apply Filters"),
+                  ),
                 ],
               ),
             ],
           ),
+          crossFadeState: isFiltersVisible
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
         ),
       ],
     );
   }
+
 
   Widget _buildGamesList() {
     return ListView(
