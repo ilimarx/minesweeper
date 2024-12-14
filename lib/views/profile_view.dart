@@ -223,7 +223,15 @@ class _ProfileViewState extends State<ProfileView> {
                 ],
               ),
               ListTile(
-                title: const Text("Start Date"),
+                title: const Text("Date From"),
+                subtitle: _filters['startDate'] != null
+                    ? Text(
+                  "${_filters['startDate']!.day.toString().padLeft(2, '0')}/"
+                      "${_filters['startDate']!.month.toString().padLeft(2, '0')}/"
+                      "${_filters['startDate']!.year}",
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                )
+                    : const Text("No date selected", style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
                 trailing: IconButton(
                   icon: const Icon(Icons.calendar_today),
                   onPressed: () async {
@@ -241,8 +249,17 @@ class _ProfileViewState extends State<ProfileView> {
                   },
                 ),
               ),
+
               ListTile(
-                title: const Text("End Date"),
+                title: const Text("Date To"),
+                subtitle: _filters['endDate'] != null
+                    ? Text(
+                  "${_filters['endDate']!.day.toString().padLeft(2, '0')}/"
+                      "${_filters['endDate']!.month.toString().padLeft(2, '0')}/"
+                      "${_filters['endDate']!.year}",
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                )
+                    : const Text("No date selected", style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
                 trailing: IconButton(
                   icon: const Icon(Icons.calendar_today),
                   onPressed: () async {
@@ -274,8 +291,8 @@ class _ProfileViewState extends State<ProfileView> {
                 children: [
                   ElevatedButton(
                     onPressed: _resetFilters,
-                    child: const Text("Reset Filters"),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                    child: const Text("Reset Filters"),
                   ),
                   ElevatedButton(
                     onPressed: _applyFilters,
