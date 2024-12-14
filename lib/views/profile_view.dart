@@ -15,38 +15,63 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
   UserModel? user;
   Map<String, List<Map<String, dynamic>>> groupedGames = {};
-  bool isLoadingProfile = true;
-  bool isLoadingGames = true;
-  int playedGamesCount = 0;
+  bool isLoading = true;
+  bool isFiltersVisible = false;
+
+  final Map<String, dynamic> _filters = {
+    'startDate': null as DateTime?,
+    'endDate': null as DateTime?,
+    'difficulty': null as int?,
+    'result': null as String?,
+    'reverseOrder': false,
+  };
 
   @override
   void initState() {
     super.initState();
-    _loadProfileData();
+    _loadData();
   }
 
-  Future<void> _loadProfileData() async {
+  Future<void> _loadData() async {
     setState(() {
-      isLoadingProfile = true;
-      isLoadingGames = true;
+      isLoading = true;
     });
 
     final loadedUser = await widget.controller.loadProfile();
     if (loadedUser != null) {
-      final gamesData = await widget.controller.groupUserGamesByDate(loadedUser.uid);
+      final games = await widget.controller.loadUserGames(loadedUser.uid);
+      final gamesData = widget.controller.groupUserGames(games);
       setState(() {
         user = loadedUser;
         groupedGames = gamesData;
-        playedGamesCount = groupedGames.values.fold(0, (sum, games) => sum + games.length);
-        isLoadingProfile = false;
-        isLoadingGames = false;
+        isLoading = false;
       });
     } else {
       setState(() {
-        isLoadingProfile = false;
-        isLoadingGames = false;
+        isLoading = false;
       });
     }
+  }
+
+  void _applyFilters() async {
+    widget.controller.filters = _filters;
+    final filteredGames = await widget.controller.loadFilteredGames(user!.uid);
+    setState(() {
+      groupedGames = filteredGames;
+      isFiltersVisible = false;
+    });
+  }
+
+  void _resetFilters() {
+    setState(() {
+      _filters['startDate'] = null;
+      _filters['endDate'] = null;
+      _filters['difficulty'] = null;
+      _filters['result'] = null;
+      _filters['reverseOrder'] = false;
+      isFiltersVisible = false;
+    });
+    _loadData();
   }
 
   @override
@@ -59,8 +84,6 @@ class _ProfileViewState extends State<ProfileView> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.settings),
-            iconSize: 36,
-            tooltip: 'Settings',
             onPressed: () async {
               final result = await Navigator.pushNamed(
                 context,
@@ -68,72 +91,61 @@ class _ProfileViewState extends State<ProfileView> {
                 arguments: user?.uid,
               );
               if (result == true) {
-                _loadProfileData();
+                _loadData();
               }
             },
           ),
         ],
       ),
-      body: isLoadingProfile
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : user == null
           ? const Center(child: Text('No user data found.'))
           : Column(
         children: [
           _buildProfileHeader(),
-          Expanded(
-            child: isLoadingGames
-                ? const Center(child: CircularProgressIndicator())
-                : groupedGames.isEmpty
-                ? const Center(child: Text('No games found.'))
-                : _buildGamesList(),
-          ),
+          _buildFilters(),
+          Expanded(child: _buildGamesList()),
         ],
       ),
     );
   }
 
   Widget _buildProfileHeader() {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        height: 240,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE1E6C3),
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(32),
-            bottomRight: Radius.circular(32),
+    return Container(
+      height: 240,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE1E6C3),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+      ),
+      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.only(bottom: 8.0),
+      child: Column(
+        children: [
+          user!.avatar.isNotEmpty
+              ? CircleAvatar(radius: 45, backgroundImage: NetworkImage(user!.avatar))
+              : const Icon(Icons.account_circle, size: 90),
+          const SizedBox(height: 7),
+          Text(user!.username, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 13),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildProfileStat('Rank', user!.playedGames.toString()),
+              const SizedBox(width: 30),
+              _buildProfileStat('Best Time', widget.controller.formatTime(user!.bestTime)),
+              const SizedBox(width: 30),
+              _buildProfileStat(
+                  'Played Games',
+                  groupedGames.values
+                      .fold(0, (sum, games) => sum + games.length)
+                      .toString()),
+            ],
           ),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        margin: const EdgeInsets.only(bottom: 8.0),
-        child: Column(
-          children: [
-            user!.avatar != ''
-                ? CircleAvatar(
-              radius: 45,
-              backgroundImage: NetworkImage(user!.avatar),
-            )
-                : const Icon(Icons.account_circle, size: 90),
-            const SizedBox(height: 7),
-            Text(
-              user!.username,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 13),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildProfileStat('Rank', user!.playedGames.toString()),
-                const SizedBox(width: 30),
-                _buildProfileStat('Best Time',
-                    user!.bestTime == -1 ? '—' : widget.controller.formatTime(user!.bestTime)),
-                const SizedBox(width: 30),
-                _buildProfileStat('Played Games', '$playedGamesCount'),
-              ],
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -149,26 +161,168 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  Widget _buildFilters() {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              isFiltersVisible = !isFiltersVisible;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Filters", style: TextStyle(fontSize: 16)),
+                Icon(
+                  isFiltersVisible ? Icons.expand_less : Icons.expand_more,
+                ),
+              ],
+            ),
+          ),
+        ),
+        AnimatedCrossFade(
+          duration: const Duration(milliseconds: 100),
+          firstChild: SizedBox.shrink(),
+          secondChild: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  DropdownButton<int?>(
+                    hint: const Text("Difficulty"),
+                    value: _filters['difficulty'],
+                    items: [
+                      DropdownMenuItem(value: -1, child: const Text("All")),
+                      DropdownMenuItem(value: 5, child: const Text("Easy")),
+                      DropdownMenuItem(value: 10, child: const Text("Medium")),
+                      DropdownMenuItem(value: 20, child: const Text("Hard")),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filters['difficulty'] = value;
+                      });
+                    },
+                  ),
+                  DropdownButton<String?>(
+                    hint: const Text("Result"),
+                    value: _filters['result'],
+                    items: [
+                      DropdownMenuItem(value: 'all', child: const Text("All")),
+                      DropdownMenuItem(value: 'win', child: const Text("Win")),
+                      DropdownMenuItem(value: 'lose', child: const Text("Lose")),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filters['result'] = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              ListTile(
+                title: const Text("Date From"),
+                subtitle: _filters['startDate'] != null
+                    ? Text(
+                  "${_filters['startDate']!.day.toString().padLeft(2, '0')}/"
+                      "${_filters['startDate']!.month.toString().padLeft(2, '0')}/"
+                      "${_filters['startDate']!.year}",
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                )
+                    : const Text("No date selected", style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+                trailing: IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _filters['startDate'] = date;
+                      });
+                    }
+                  },
+                ),
+              ),
+
+              ListTile(
+                title: const Text("Date To"),
+                subtitle: _filters['endDate'] != null
+                    ? Text(
+                  "${_filters['endDate']!.day.toString().padLeft(2, '0')}/"
+                      "${_filters['endDate']!.month.toString().padLeft(2, '0')}/"
+                      "${_filters['endDate']!.year}",
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                )
+                    : const Text("No date selected", style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+                trailing: IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _filters['endDate'] = date;
+                      });
+                    }
+                  },
+                ),
+              ),
+              SwitchListTile(
+                title: const Text("Reverse Order"),
+                value: _filters['reverseOrder'],
+                onChanged: (value) {
+                  setState(() {
+                    _filters['reverseOrder'] = value;
+                  });
+                },
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _resetFilters,
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                    child: const Text("Reset Filters"),
+                  ),
+                  ElevatedButton(
+                    onPressed: _applyFilters,
+                    child: const Text("Apply Filters"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          crossFadeState: isFiltersVisible
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
+        ),
+      ],
+    );
+  }
+
+
   Widget _buildGamesList() {
-    int globalIndex = playedGamesCount;
-    return ListView.builder(
-      itemCount: groupedGames.keys.length,
-      itemBuilder: (context, dateIndex) {
-        final date = groupedGames.keys.toList()[dateIndex];
-        final games = groupedGames[date]!;
+    return ListView(
+      children: groupedGames.entries.map((entry) {
+        final date = entry.key;
+        final games = entry.value;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                date,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: Text(date, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
             ...games.map((game) {
               final isWin = game['result'] == 'win';
@@ -178,6 +332,7 @@ class _ProfileViewState extends State<ProfileView> {
                   ? 'Hard'
                   : 'Medium';
               final time = game['time'] ?? 0;
+              final index = game['index'];
 
               return Container(
                 margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
@@ -193,7 +348,7 @@ class _ProfileViewState extends State<ProfileView> {
                       margin: const EdgeInsets.only(left: 6.0),
                       width: 80,
                       child: Text(
-                        '${globalIndex--}',
+                        '$index',
                         style: const TextStyle(color: Colors.white, fontSize: 16),
                         textAlign: TextAlign.left,
                       ),
@@ -217,7 +372,7 @@ class _ProfileViewState extends State<ProfileView> {
             }).toList(),
           ],
         );
-      },
+      }).toList(),
     );
   }
 }

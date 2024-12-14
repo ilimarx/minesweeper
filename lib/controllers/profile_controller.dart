@@ -8,6 +8,14 @@ class ProfileController {
 
   UserModel? userModel;
 
+  Map<String, dynamic> filters = {
+    'startDate': null,
+    'endDate': null,
+    'difficulty': null,
+    'result': null,
+    'reverseOrder': false,
+  };
+
   Future<UserModel?> loadProfile() async {
     User? currentUser = _auth.currentUser;
     if (currentUser == null) return null;
@@ -31,20 +39,52 @@ class ProfileController {
     return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
   }
 
-  Future<Map<String, List<Map<String, dynamic>>>> groupUserGamesByDate(String userId) async {
-    final games = await loadUserGames(userId);
-
+  Map<String, List<Map<String, dynamic>>> groupUserGames(List<Map<String, dynamic>> games) {
     final Map<String, List<Map<String, dynamic>>> groupedGames = {};
+    int currentIndex = filters['reverseOrder'] == true ? 1 : games.length;
+
     for (var game in games) {
       final timestamp = (game['timestamp'] as Timestamp).toDate();
       final dateKey = '${timestamp.year}-${timestamp.month.toString().padLeft(2, '0')}-${timestamp.day.toString().padLeft(2, '0')}';
-      if (!groupedGames.containsKey(dateKey)) {
-        groupedGames[dateKey] = [];
-      }
-      groupedGames[dateKey]!.add(game);
+
+      game['index'] = currentIndex;
+      currentIndex += filters['reverseOrder'] == true ? 1 : -1;
+      groupedGames.putIfAbsent(dateKey, () => []).add(game);
     }
 
     return groupedGames;
+  }
+
+  Future<Map<String, List<Map<String, dynamic>>>> loadFilteredGames(String userId) async {
+    List<Map<String, dynamic>> games = await loadUserGames(userId);
+
+    if (filters['startDate'] != null) {
+      games = games.where((game) {
+        final timestamp = (game['timestamp'] as Timestamp).toDate();
+        return timestamp.isAfter(filters['startDate']);
+      }).toList();
+    }
+
+    if (filters['endDate'] != null) {
+      games = games.where((game) {
+        final timestamp = (game['timestamp'] as Timestamp).toDate();
+        return timestamp.isBefore(filters['endDate'].add(const Duration(days: 1)));
+      }).toList();
+    }
+
+    if (filters['difficulty'] != null && filters['difficulty'] != -1) {
+      games = games.where((game) => game['mines'] == filters['difficulty']).toList();
+    }
+
+    if (filters['result'] != null && filters['result'] != 'all') {
+      games = games.where((game) => game['result'] == filters['result']).toList();
+    }
+
+    if (filters['reverseOrder'] == true) {
+      games = games.reversed.toList();
+    }
+
+    return groupUserGames(games);
   }
 
   String formatTime(int timeInSeconds) {
@@ -55,4 +95,5 @@ class ProfileController {
     final seconds = timeInSeconds % 60;
     return '${minutes}m ${seconds}s';
   }
+
 }
