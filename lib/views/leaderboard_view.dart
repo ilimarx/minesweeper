@@ -17,7 +17,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
   UserModel? user;
   List<UserModel> leaderboard = [];
   bool isLoading = true;
-
+  int? userRank;
 
   @override
   void initState() {
@@ -33,9 +33,11 @@ class _LeaderboardViewState extends State<LeaderboardView> {
     final loadedUser = await widget.controller.loadProfile();
     if (loadedUser != null) {
       final users = await widget.controller.loadLeaderboard();
+      final rank = await widget.controller.getUserRank(loadedUser.uid);
       setState(() {
         user = loadedUser;
         leaderboard = users;
+        userRank = rank;
         isLoading = false;
       });
     } else {
@@ -92,7 +94,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
               Container(
                 margin: const EdgeInsets.only(left: 4.0),
                 width: 110,
-                child: _buildProfileStat('Rank', user!.playedGames.toString())
+                child: _buildProfileStat('Rank', userRank.toString())
               ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -136,7 +138,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color: rank != userRank ? AppColors.primary : Color(0xFF899E34) ,
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(

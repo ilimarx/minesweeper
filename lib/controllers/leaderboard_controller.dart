@@ -8,13 +8,6 @@ class LeaderboardController {
 
   UserModel? userModel;
 
-  Map<String, dynamic> filters = {
-    'startDate': null,
-    'endDate': null,
-    'difficulty': null,
-    'result': null,
-    'reverseOrder': false,
-  };
 
   Future<UserModel?> loadProfile() async {
     User? currentUser = _auth.currentUser;
@@ -38,6 +31,12 @@ class LeaderboardController {
         .map((doc) => UserModel.fromFirestore(doc))
         .where((user) => user.bestTime != -1)
         .toList();
+  }
+
+  Future<int?> getUserRank(String uid) async {
+    final leaderboard = await loadLeaderboard();
+    final index = leaderboard.indexWhere((user) => user.uid == uid);
+    return index != -1 ? index + 1 : null;
   }
 
   String formatTime(int timeInSeconds) {
