@@ -15,6 +15,7 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
   UserModel? user;
   Map<String, List<Map<String, dynamic>>> groupedGames = {};
+  int? userRank;
   bool isLoading = true;
   bool isFiltersVisible = false;
 
@@ -41,9 +42,11 @@ class _ProfileViewState extends State<ProfileView> {
     if (loadedUser != null) {
       final games = await widget.controller.loadUserGames(loadedUser.uid);
       final gamesData = widget.controller.groupUserGames(games);
+      final rank = await widget.controller.getUserRank();
       setState(() {
         user = loadedUser;
         groupedGames = gamesData;
+        userRank = rank;
         isLoading = false;
       });
     } else {
@@ -137,7 +140,7 @@ class _ProfileViewState extends State<ProfileView> {
               Container(
                 margin: const EdgeInsets.only(left: 4.0),
                 width: 110,
-                child: _buildProfileStat('Rank', user!.playedGames.toString())
+                child: _buildProfileStat('Rank', userRank.toString())
               ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4.0),

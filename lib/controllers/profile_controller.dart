@@ -87,6 +87,27 @@ class ProfileController {
     return groupUserGames(games);
   }
 
+  Future<int?> getUserRank() async {
+    if (userModel == null) return null;
+
+    QuerySnapshot snapshot = await _firestore
+        .collection('users')
+        .orderBy('bestTime', descending: false)
+        .get();
+
+    List<UserModel> users = snapshot.docs
+        .map((doc) => UserModel.fromFirestore(doc))
+        .where((user) => user.bestTime != -1)
+        .toList();
+
+    for (int i = 0; i < users.length; i++) {
+      if (users[i].uid == userModel!.uid) {
+        return i + 1;
+      }
+    }
+    return null;
+  }
+
   String formatTime(int timeInSeconds) {
     if (timeInSeconds < 60) {
       return '${timeInSeconds}s';
