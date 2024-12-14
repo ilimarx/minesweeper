@@ -39,6 +39,22 @@ class LeaderboardController {
     return index != -1 ? index + 1 : null;
   }
 
+  Future<int> getPlayedGamesCount(String userId) async {
+    try {
+      final gamesCollection = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('games')
+          .get();
+
+      return gamesCollection.docs.length;
+    } catch (e) {
+      print("Error fetching played games count: $e");
+      return 0;
+    }
+  }
+
+
   String formatTime(int timeInSeconds) {
     if (timeInSeconds < 60) {
       return '${timeInSeconds}s';

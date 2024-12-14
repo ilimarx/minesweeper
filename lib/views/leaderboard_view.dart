@@ -18,6 +18,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
   List<UserModel> leaderboard = [];
   bool isLoading = true;
   int? userRank;
+  int? playedGames;
 
   @override
   void initState() {
@@ -34,10 +35,12 @@ class _LeaderboardViewState extends State<LeaderboardView> {
     if (loadedUser != null) {
       final users = await widget.controller.loadLeaderboard();
       final rank = await widget.controller.getUserRank(loadedUser.uid);
+      final gamesCount = await widget.controller.getPlayedGamesCount(loadedUser.uid);
       setState(() {
         user = loadedUser;
         leaderboard = users;
         userRank = rank;
+        playedGames = gamesCount;
         isLoading = false;
       });
     } else {
@@ -105,7 +108,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
                 width: 110,
                 child: _buildProfileStat(
                     'Played Games',
-                    '0'
+                    playedGames.toString()
                 )
               ),
             ],
