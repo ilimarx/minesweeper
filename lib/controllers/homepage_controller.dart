@@ -33,6 +33,14 @@ class HomepageController {
     return model.selectedDifficulty;
   }
 
+  void selectTheme(String theme) {
+    model.setTheme(theme);
+  }
+
+  String getSelectedTheme() {
+    return model.selectedTheme;
+  }
+
   void startGame(BuildContext context) {
     int rows = _getRowsBasedOnDifficulty();
     int cols = _getColsBasedOnDifficulty();

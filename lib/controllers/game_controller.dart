@@ -58,6 +58,14 @@ class GameController extends ChangeNotifier {
     }
   }
 
+  void revealAllTiles() {
+    for (int i = 0; i < _gameModel.rows; i++) {
+      for (int j = 0; j < _gameModel.cols; j++) {
+        _gameModel.grid[i][j].setVisible = true;
+      }
+    }
+  }
+
   void _checkWinCondition() {
     for (int row = 0; row < _gameModel.rows; row++) {
       for (int col = 0; col < _gameModel.cols; col++) {

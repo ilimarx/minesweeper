@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:minesweeper/controllers/game_controller.dart';
 import 'package:minesweeper/models/tile_model.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:minesweeper/theme/colors.dart';
 
 class GameView extends StatefulWidget {
   final int rows;
@@ -19,6 +21,7 @@ class _GameViewState extends State<GameView> {
   late GameController _gameController;
   late Timer _timer;
   int _elapsedTime = 0;
+  bool isFlagMode = false;
 
   @override
   void initState() {
@@ -57,6 +60,26 @@ class _GameViewState extends State<GameView> {
             },
           ),
           actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isFlagMode ? Colors.blue : AppColors.surface,
+              ),
+              onPressed: () {
+                setState(() {
+                  isFlagMode = !isFlagMode;
+                });
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset(
+                    'assets/images/flag.svg',
+                    width: 24,
+                    height: 24,
+                  ),
+                ],
+              ),
+            ),
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () {
@@ -76,13 +99,11 @@ class _GameViewState extends State<GameView> {
         ),
         body: Consumer<GameController>(
           builder: (context, gameController, child) {
+
+
             if (gameController.gameOver) {
-              return Center(
-                child: Text(
-                  gameController.gameWon ? 'You Won!' : 'Game Over',
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              );
+              gameController.revealAllTiles();
+              
             }
 
             return Center(
@@ -93,27 +114,44 @@ class _GameViewState extends State<GameView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(widget.cols, (col) {
                       TileModel tile = gameController.grid[row][col];
+                      bool isProcessing = false;
+
                       return GestureDetector(
                         onTap: () {
-                          gameController.revealTile(row, col);
-                        },
-                        onLongPress: () {
-                          gameController.toggleFlag(row, col);
+                          if (isFlagMode) {
+                            _gameController.toggleFlag(row, col);
+                          } else {
+                            _gameController.revealTile(row, col);
+                          }
                         },
                         child: Container(
                           width: 30,
                           height: 30,
                           margin: const EdgeInsets.all(2),
                           color: tile.visible
-                              ? (tile.hasMine ? Colors.red : Colors.grey)
-                              : Colors.blue,
+                              ? (tile.hasMine ? (gameController.gameWon ? AppColors.success : AppColors.error) : AppColors.surface)
+                              : AppColors.primary,
                           child: Center(
-                            child: Text(
-                              tile.visible
-                                  ? (tile.hasMine ? 'M' : (tile.value > 0 ? tile.value.toString() : ''))
-                                  : (tile.hasFlag ? 'F' : ''),
-                              style: const TextStyle(color: Colors.white),
-                            ),
+                            child: tile.visible
+                                ? (tile.hasMine
+                                    ? SvgPicture.asset(
+                                        'assets/images/mine.svg', // Replace with your mine SVG asset path
+                                        width: 24,
+                                        height: 24,
+                                      )
+                                    : (tile.value > 0
+                                        ? Text(
+                                            tile.value.toString(),
+                                            style: const TextStyle(color: AppColors.textPrimary),
+                                          )
+                                        : const SizedBox()))
+                                : (tile.hasFlag
+                                    ? SvgPicture.asset(
+                                        'assets/images/flag.svg', // Replace with your flag SVG asset path
+                                        width: 24,
+                                        height: 24,
+                                      )
+                                    : const SizedBox()),
                           ),
                         ),
                       );
