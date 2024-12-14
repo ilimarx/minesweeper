@@ -68,7 +68,7 @@ class ProfileController {
     if (filters['endDate'] != null) {
       games = games.where((game) {
         final timestamp = (game['timestamp'] as Timestamp).toDate();
-        return timestamp.isBefore(filters['endDate']);
+        return timestamp.isBefore(filters['endDate'].add(const Duration(days: 1)));
       }).toList();
     }
 
