@@ -1,3 +1,5 @@
+// Author: Andrii Bondarenko (xbonda06)
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
@@ -8,7 +10,8 @@ class LeaderboardController {
 
   UserModel? userModel;
 
-
+  /// Loads the current user's profile.
+  /// Returns `null` if the user is not authenticated or their profile doesn't exist.
   Future<UserModel?> loadProfile() async {
     User? currentUser = _auth.currentUser;
     if (currentUser == null) return null;
@@ -21,25 +24,30 @@ class LeaderboardController {
     return userModel;
   }
 
+  /// Loads the leaderboard.
+  /// If a difficulty is provided, filters users based on their best time in games with that difficulty.
   Future<List<UserModel>> loadLeaderboard({int? difficulty}) async {
     if (difficulty == null) {
-      // Default behavior: load leaderboard based on `bestTime`
+      // Default leaderboard sorted by best time.
       QuerySnapshot snapshot = await _firestore
           .collection('users')
           .orderBy('bestTime', descending: false)
           .get();
 
+      // Exclude users with no valid best time (-1).
       return snapshot.docs
           .map((doc) => UserModel.fromFirestore(doc))
           .where((user) => user.bestTime != -1)
           .toList();
     } else {
-      // Filter users based on the best game time with specific difficulty
+      // Leaderboard for a specific difficulty.
       QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
       List<UserModel> filteredUsers = [];
 
       for (var doc in usersSnapshot.docs) {
         String userId = doc.id;
+
+        // Fetch the user's best game for the specified difficulty.
         QuerySnapshot gamesSnapshot = await _firestore
             .collection('users')
             .doc(userId)
@@ -54,7 +62,7 @@ class LeaderboardController {
           var gameDoc = gamesSnapshot.docs.first;
           var originalUser = UserModel.fromFirestore(doc);
 
-          // Create a new instance of UserModel with updated bestTime
+          // Update the user model with the best time for the difficulty.
           var updatedUser = UserModel(
             email: originalUser.email,
             uid: originalUser.uid,
@@ -68,19 +76,23 @@ class LeaderboardController {
         }
       }
 
-      // Sort users by best time for the filtered difficulty
+      // Sort the filtered users by best time.
       filteredUsers.sort((a, b) => a.bestTime.compareTo(b.bestTime));
 
       return filteredUsers;
     }
   }
 
+  /// Gets the user's rank on the leaderboard.
+  /// Returns `null` if the user is not found on the leaderboard.
   Future<int?> getUserRank(String uid, int? difficulty) async {
     final leaderboard = await loadLeaderboard(difficulty: difficulty);
     final index = leaderboard.indexWhere((user) => user.uid == uid);
     return index != -1 ? index + 1 : null;
   }
 
+  /// Gets the user's best time for a specific difficulty.
+  /// If no difficulty is provided, returns the general best time.
   Future<int?> getBestTimeForDifficulty(String uid, int? difficulty) async {
     if (difficulty == null) {
       DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
@@ -90,6 +102,7 @@ class LeaderboardController {
       }
       return null;
     } else {
+      // Fetch the best game for the specified difficulty.
       QuerySnapshot gamesSnapshot = await _firestore
           .collection('users')
           .doc(uid)
@@ -107,7 +120,7 @@ class LeaderboardController {
     }
   }
 
-
+  /// Gets the total number of games played by the user.
   Future<int> getPlayedGamesCount(String userId) async {
     try {
       final gamesCollection = await _firestore
@@ -123,6 +136,7 @@ class LeaderboardController {
     }
   }
 
+  /// Formats the time in seconds into a human-readable string (e.g., "1m 30s").
   String formatTime(int timeInSeconds) {
     if (timeInSeconds < 60) {
       return '${timeInSeconds}s';
@@ -131,5 +145,4 @@ class LeaderboardController {
     final seconds = timeInSeconds % 60;
     return '${minutes}m ${seconds}s';
   }
-
 }
