@@ -20,6 +20,8 @@ class _LeaderboardViewState extends State<LeaderboardView> {
   int? userRank;
   int? playedGames;
 
+  int? selectedDifficulty;
+
   @override
   void initState() {
     super.initState();
@@ -34,7 +36,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
     final loadedUser = await widget.controller.loadProfile();
     if (loadedUser != null) {
       final users = await widget.controller.loadLeaderboard();
-      final rank = await widget.controller.getUserRank(loadedUser.uid);
+      final rank = await widget.controller.getUserRank(loadedUser.uid, null);
       final gamesCount = await widget.controller.getPlayedGamesCount(loadedUser.uid);
       setState(() {
         user = loadedUser;
@@ -49,6 +51,23 @@ class _LeaderboardViewState extends State<LeaderboardView> {
       });
     }
   }
+
+  void _changeDifficulty(int? difficulty) async {
+    setState(() {
+      selectedDifficulty = difficulty;
+      isLoading = true;
+    });
+
+    final users = await widget.controller.loadLeaderboard(difficulty: difficulty);
+    final rank = await widget.controller.getUserRank(user!.uid, difficulty);
+
+    setState(() {
+      leaderboard = users;
+      userRank = rank;
+      isLoading = false;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +84,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
           : Column(
         children: [
           _buildProfileHeader(),
+          _buildDifficultySelector(),
           Expanded(child: _buildLeaderboard()),
         ],
       ),
@@ -97,7 +117,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
               Container(
                 margin: const EdgeInsets.only(left: 4.0),
                 width: 110,
-                child: _buildProfileStat('Rank', userRank.toString())
+                child: _buildProfileStat('Rank', userRank?.toString() ?? 'N/A')
               ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -108,7 +128,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
                 width: 110,
                 child: _buildProfileStat(
                     'Played Games',
-                    playedGames.toString()
+                    playedGames?.toString() ?? 'N/A'
                 )
               ),
             ],
@@ -129,6 +149,49 @@ class _LeaderboardViewState extends State<LeaderboardView> {
     );
   }
 
+  Widget _buildDifficultySelector() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.arrow_left),
+          onPressed: selectedDifficulty == null
+              ? null
+              : () {
+            final newDifficulty = selectedDifficulty == 5
+                ? null
+                : selectedDifficulty == 10
+                ? 5
+                : 10;
+            _changeDifficulty(newDifficulty);
+          },
+        ),
+        Text(
+          selectedDifficulty == null
+              ? "All"
+              : selectedDifficulty == 5
+              ? "Easy"
+              : selectedDifficulty == 10
+              ? "Medium"
+              : "Hard",
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        IconButton(
+          icon: const Icon(Icons.arrow_right),
+          onPressed: selectedDifficulty == 20
+              ? null
+              : () {
+            final newDifficulty = selectedDifficulty == null
+                ? 5
+                : selectedDifficulty == 5
+                ? 10
+                : 20;
+            _changeDifficulty(newDifficulty);
+          },
+        ),
+      ],
+    );
+  }
 
   Widget _buildLeaderboard() {
     return ListView.builder(
