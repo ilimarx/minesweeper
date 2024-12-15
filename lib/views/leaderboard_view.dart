@@ -22,6 +22,8 @@ class _LeaderboardViewState extends State<LeaderboardView> {
 
   int? selectedDifficulty;
 
+  int? displayedBestTime;
+
   @override
   void initState() {
     super.initState();
@@ -60,10 +62,12 @@ class _LeaderboardViewState extends State<LeaderboardView> {
 
     final users = await widget.controller.loadLeaderboard(difficulty: difficulty);
     final rank = await widget.controller.getUserRank(user!.uid, difficulty);
+    final bestTime = await widget.controller.getBestTimeForDifficulty(user!.uid, difficulty);
 
     setState(() {
       leaderboard = users;
       userRank = rank;
+      displayedBestTime = bestTime;
       isLoading = false;
     });
   }
@@ -121,7 +125,10 @@ class _LeaderboardViewState extends State<LeaderboardView> {
               ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: _buildProfileStat('Best Time', widget.controller.formatTime(user!.bestTime)),
+                child: _buildProfileStat('Best Time', displayedBestTime != null
+                    ? widget.controller.formatTime(displayedBestTime!)
+                    : widget.controller.formatTime(user!.bestTime)
+                ),
               ),
               Container(
                 margin: const EdgeInsets.only(right: 4.0),

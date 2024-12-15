@@ -71,8 +71,6 @@ class LeaderboardController {
       // Sort users by best time for the filtered difficulty
       filteredUsers.sort((a, b) => a.bestTime.compareTo(b.bestTime));
 
-
-
       return filteredUsers;
     }
   }
@@ -82,6 +80,33 @@ class LeaderboardController {
     final index = leaderboard.indexWhere((user) => user.uid == uid);
     return index != -1 ? index + 1 : null;
   }
+
+  Future<int?> getBestTimeForDifficulty(String uid, int? difficulty) async {
+    if (difficulty == null) {
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        var user = UserModel.fromFirestore(userDoc);
+        return user.bestTime != -1 ? user.bestTime : null;
+      }
+      return null;
+    } else {
+      QuerySnapshot gamesSnapshot = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('games')
+          .where('result', isEqualTo: 'win')
+          .where('mines', isEqualTo: difficulty)
+          .orderBy('time', descending: false)
+          .limit(1)
+          .get();
+
+      if (gamesSnapshot.docs.isNotEmpty) {
+        return gamesSnapshot.docs.first['time'];
+      }
+      return null;
+    }
+  }
+
 
   Future<int> getPlayedGamesCount(String userId) async {
     try {
