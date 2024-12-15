@@ -1,3 +1,5 @@
+// Author: Andrii Bondarenko (xbonda06)
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {

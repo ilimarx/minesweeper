@@ -1,3 +1,5 @@
+// Author: Ilia Markelov (xmarke00)
+
 class TileModel {
   bool _visible;
   bool _hasMine;
