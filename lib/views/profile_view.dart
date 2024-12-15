@@ -245,6 +245,70 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ],
               ),
+              ListTile(
+                title: const Text("Date From"),
+                subtitle: _filters['startDate'] != null
+                    ? Text(
+                  "${_filters['startDate']!.day.toString().padLeft(2, '0')}/"
+                      "${_filters['startDate']!.month.toString().padLeft(2, '0')}/"
+                      "${_filters['startDate']!.year}",
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                )
+                    : const Text("No date selected", style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+                trailing: IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _filters['startDate'] = date;
+                      });
+                    }
+                  },
+                ),
+              ),
+
+              ListTile(
+                title: const Text("Date To"),
+                subtitle: _filters['endDate'] != null
+                    ? Text(
+                  "${_filters['endDate']!.day.toString().padLeft(2, '0')}/"
+                      "${_filters['endDate']!.month.toString().padLeft(2, '0')}/"
+                      "${_filters['endDate']!.year}",
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                )
+                    : const Text("No date selected", style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+                trailing: IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _filters['endDate'] = date;
+                      });
+                    }
+                  },
+                ),
+              ),
+              SwitchListTile(
+                title: const Text("Reverse Order"),
+                value: _filters['reverseOrder'],
+                onChanged: (value) {
+                  setState(() {
+                    _filters['reverseOrder'] = value;
+                  });
+                },
+              ),
               // Buttons to apply or reset filters
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
