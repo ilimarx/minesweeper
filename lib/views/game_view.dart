@@ -62,7 +62,7 @@ class _GameViewState extends State<GameView> {
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: isFlagMode ? Colors.blue : AppColors.surface,
+                backgroundColor: isFlagMode ? AppColors.primary : AppColors.surface,
               ),
               onPressed: () {
                 setState(() {
@@ -123,6 +123,9 @@ class _GameViewState extends State<GameView> {
                           } else {
                             _gameController.revealTile(row, col);
                           }
+                        },
+                        onLongPress: () {
+                          _gameController.toggleFlag(row, col);
                         },
                         child: Container(
                           width: 30,

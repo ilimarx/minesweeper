@@ -21,7 +21,6 @@ class GameController extends ChangeNotifier {
 
   void revealTile(int row, int col) {
     if (_gameOver || _gameModel.grid[row][col].visible) return;
-
     _gameModel.grid[row][col].setVisible = true;
     if (_gameModel.grid[row][col].hasMine) {
       _stopwatch.stop();
