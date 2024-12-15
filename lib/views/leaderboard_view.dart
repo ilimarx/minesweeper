@@ -111,7 +111,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
         children: [
           user!.avatar.isNotEmpty
               ? CircleAvatar(radius: 27, backgroundImage: NetworkImage(user!.avatar))
-              : const Icon(Icons.account_circle, size: 90),
+              : const Icon(Icons.account_circle, size: 54),
           const SizedBox(height: 7),
           Text(user!.username, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 13),
@@ -121,13 +121,15 @@ class _LeaderboardViewState extends State<LeaderboardView> {
               Container(
                 margin: const EdgeInsets.only(left: 4.0),
                 width: 110,
-                child: _buildProfileStat('Rank', userRank?.toString() ?? 'N/A')
+                child: _buildProfileStat('Rank', userRank?.toString() ?? '—')
               ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: _buildProfileStat('Best Time', displayedBestTime != null
                     ? widget.controller.formatTime(displayedBestTime!)
-                    : widget.controller.formatTime(user!.bestTime)
+                    : (user!.bestTime != -1
+                    ? widget.controller.formatTime(user!.bestTime)
+                    : '—')
                 ),
               ),
               Container(
