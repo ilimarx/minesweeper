@@ -140,11 +140,11 @@ class _ProfileViewState extends State<ProfileView> {
               Container(
                 margin: const EdgeInsets.only(left: 4.0),
                 width: 110,
-                child: _buildProfileStat('Rank', userRank.toString())
+                child: _buildProfileStat('Rank', userRank?.toString() ?? '—')
               ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: _buildProfileStat('Best Time', widget.controller.formatTime(user!.bestTime)),
+                child: _buildProfileStat('Best Time', user!.bestTime != -1 ? widget.controller.formatTime(user!.bestTime) : '—'),
               ),
               Container(
                 margin: const EdgeInsets.only(right: 4.0),
