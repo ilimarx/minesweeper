@@ -1,7 +1,8 @@
+// Author: Andrii Bondarenko (xbonda06)
+
 import 'package:flutter/material.dart';
 import 'package:minesweeper/controllers/leaderboard_controller.dart';
 import 'package:minesweeper/models/user_model.dart';
-import '../controllers/profile_controller.dart';
 import '../theme/colors.dart';
 
 class LeaderboardView extends StatefulWidget {
@@ -19,9 +20,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
   bool isLoading = true;
   int? userRank;
   int? playedGames;
-
   int? selectedDifficulty;
-
   int? displayedBestTime;
 
   @override
@@ -30,16 +29,16 @@ class _LeaderboardViewState extends State<LeaderboardView> {
     _loadData();
   }
 
+  /// Loads the leaderboard and user-specific data.
   Future<void> _loadData() async {
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
 
     final loadedUser = await widget.controller.loadProfile();
     if (loadedUser != null) {
       final users = await widget.controller.loadLeaderboard();
       final rank = await widget.controller.getUserRank(loadedUser.uid, null);
       final gamesCount = await widget.controller.getPlayedGamesCount(loadedUser.uid);
+
       setState(() {
         user = loadedUser;
         leaderboard = users;
@@ -48,12 +47,11 @@ class _LeaderboardViewState extends State<LeaderboardView> {
         isLoading = false;
       });
     } else {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
+  /// Updates leaderboard data based on the selected difficulty.
   void _changeDifficulty(int? difficulty) async {
     setState(() {
       selectedDifficulty = difficulty;
@@ -71,7 +69,6 @@ class _LeaderboardViewState extends State<LeaderboardView> {
       isLoading = false;
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +92,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
     );
   }
 
+  /// Displays the user's profile header with rank, best time, and games played.
   Widget _buildProfileHeader() {
     return Container(
       height: 180,
@@ -118,28 +116,14 @@ class _LeaderboardViewState extends State<LeaderboardView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                margin: const EdgeInsets.only(left: 4.0),
-                width: 110,
-                child: _buildProfileStat('Rank', userRank?.toString() ?? '—')
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: _buildProfileStat('Best Time', displayedBestTime != null
+              _buildProfileStat('Rank', userRank?.toString() ?? '—'),
+              _buildProfileStat(
+                'Best Time',
+                displayedBestTime != null
                     ? widget.controller.formatTime(displayedBestTime!)
-                    : (user!.bestTime != -1
-                    ? widget.controller.formatTime(user!.bestTime)
-                    : '—')
-                ),
+                    : (user!.bestTime != -1 ? widget.controller.formatTime(user!.bestTime) : '—'),
               ),
-              Container(
-                margin: const EdgeInsets.only(right: 4.0),
-                width: 110,
-                child: _buildProfileStat(
-                    'Played Games',
-                    playedGames?.toString() ?? 'N/A'
-                )
-              ),
+              _buildProfileStat('Played Games', playedGames?.toString() ?? 'N/A'),
             ],
           ),
         ],
@@ -147,6 +131,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
     );
   }
 
+  /// Builds a single profile statistic label and value pair.
   Widget _buildProfileStat(String label, String value) {
     return Expanded(
       child: Column(
@@ -158,6 +143,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
     );
   }
 
+  /// Provides a selector for switching between different difficulty levels.
   Widget _buildDifficultySelector() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -202,6 +188,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
     );
   }
 
+  /// Builds the leaderboard displaying player rank, avatar, username, and best time.
   Widget _buildLeaderboard() {
     return ListView.builder(
       itemCount: leaderboard.length,
@@ -213,7 +200,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: rank != userRank ? AppColors.primary : Color(0xFF899E34) ,
+            color: rank != userRank ? AppColors.primary : const Color(0xFF899E34),
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
@@ -227,6 +214,7 @@ class _LeaderboardViewState extends State<LeaderboardView> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Player's rank
               Container(
                 width: 50,
                 alignment: Alignment.center,
@@ -239,26 +227,26 @@ class _LeaderboardViewState extends State<LeaderboardView> {
                   ),
                 ),
               ),
-
+              // Player's avatar
               CircleAvatar(
                 radius: 18,
                 backgroundImage: user.avatar.isNotEmpty
                     ? NetworkImage(user.avatar)
                     : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
               ),
-
+              // Player's username
               Expanded(
                 child: Text(
                   user.username,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
-                    fontWeight: FontWeight.bold
+                    fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-
+              // Player's best time
               Container(
                 width: 80,
                 alignment: Alignment.centerRight,

@@ -1,3 +1,5 @@
+// Author: Andrii Bondarenko (xbonda06)
+
 import 'package:flutter/material.dart';
 import 'package:minesweeper/models/user_model.dart';
 import '../controllers/profile_controller.dart';
@@ -33,6 +35,7 @@ class _ProfileViewState extends State<ProfileView> {
     _loadData();
   }
 
+  // Loads user profile data and games
   Future<void> _loadData() async {
     setState(() {
       isLoading = true;
@@ -56,15 +59,17 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
+  // Applies the filters set by the user
   void _applyFilters() async {
     widget.controller.filters = _filters;
     final filteredGames = await widget.controller.loadFilteredGames(user!.uid);
     setState(() {
       groupedGames = filteredGames;
-      isFiltersVisible = false;
+      isFiltersVisible = false; // Collapse filters after applying
     });
   }
 
+  // Resets all filters to their default values
   void _resetFilters() {
     setState(() {
       _filters['startDate'] = null;
@@ -72,7 +77,7 @@ class _ProfileViewState extends State<ProfileView> {
       _filters['difficulty'] = null;
       _filters['result'] = null;
       _filters['reverseOrder'] = false;
-      isFiltersVisible = false;
+      isFiltersVisible = false; // Collapse filters after resetting
     });
     _loadData();
   }
@@ -114,6 +119,7 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  // Builds the profile header with rank, best time, and played games
   Widget _buildProfileHeader() {
     return Container(
       height: 240,
@@ -138,24 +144,25 @@ class _ProfileViewState extends State<ProfileView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                margin: const EdgeInsets.only(left: 4.0),
-                width: 110,
-                child: _buildProfileStat('Rank', userRank?.toString() ?? '—')
-              ),
+                  margin: const EdgeInsets.only(left: 4.0),
+                  width: 110,
+                  child: _buildProfileStat('Rank', userRank?.toString() ?? '—')),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: _buildProfileStat('Best Time', user!.bestTime != -1 ? widget.controller.formatTime(user!.bestTime) : '—'),
+                child: _buildProfileStat(
+                    'Best Time',
+                    user!.bestTime != -1
+                        ? widget.controller.formatTime(user!.bestTime)
+                        : '—'),
               ),
               Container(
-                margin: const EdgeInsets.only(right: 4.0),
-                width: 110,
-                child: _buildProfileStat(
-                    'Played Games',
-                    groupedGames.values
-                        .fold(0, (sum, games) => sum + games.length)
-                        .toString()
-                )
-              ),
+                  margin: const EdgeInsets.only(right: 4.0),
+                  width: 110,
+                  child: _buildProfileStat(
+                      'Played Games',
+                      groupedGames.values
+                          .fold(0, (sum, games) => sum + games.length)
+                          .toString())),
             ],
           ),
         ],
@@ -163,6 +170,7 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  // Builds a profile statistic with a label and a value
   Widget _buildProfileStat(String label, String value) {
     return Expanded(
       child: Column(
@@ -174,6 +182,7 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  // Builds the filter section
   Widget _buildFilters() {
     return Column(
       children: [
@@ -201,6 +210,7 @@ class _ProfileViewState extends State<ProfileView> {
           firstChild: SizedBox.shrink(),
           secondChild: Column(
             children: [
+              // Filter controls (dropdowns, date pickers, etc.)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -235,70 +245,7 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ],
               ),
-              ListTile(
-                title: const Text("Date From"),
-                subtitle: _filters['startDate'] != null
-                    ? Text(
-                  "${_filters['startDate']!.day.toString().padLeft(2, '0')}/"
-                      "${_filters['startDate']!.month.toString().padLeft(2, '0')}/"
-                      "${_filters['startDate']!.year}",
-                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
-                )
-                    : const Text("No date selected", style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-                trailing: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime.now(),
-                    );
-                    if (date != null) {
-                      setState(() {
-                        _filters['startDate'] = date;
-                      });
-                    }
-                  },
-                ),
-              ),
-
-              ListTile(
-                title: const Text("Date To"),
-                subtitle: _filters['endDate'] != null
-                    ? Text(
-                  "${_filters['endDate']!.day.toString().padLeft(2, '0')}/"
-                      "${_filters['endDate']!.month.toString().padLeft(2, '0')}/"
-                      "${_filters['endDate']!.year}",
-                  style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
-                )
-                    : const Text("No date selected", style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-                trailing: IconButton(
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime.now(),
-                    );
-                    if (date != null) {
-                      setState(() {
-                        _filters['endDate'] = date;
-                      });
-                    }
-                  },
-                ),
-              ),
-              SwitchListTile(
-                title: const Text("Reverse Order"),
-                value: _filters['reverseOrder'],
-                onChanged: (value) {
-                  setState(() {
-                    _filters['reverseOrder'] = value;
-                  });
-                },
-              ),
+              // Buttons to apply or reset filters
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -323,7 +270,7 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-
+  // Builds the games list grouped by date
   Widget _buildGamesList() {
     return ListView(
       children: groupedGames.entries.map((entry) {

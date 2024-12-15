@@ -1,4 +1,5 @@
-// settings_view.dart
+// Author: Andrii Bondarenko (xbonda06)
+
 import 'package:flutter/material.dart';
 import 'package:minesweeper/controllers/auth_controller.dart';
 import 'package:minesweeper/controllers/settings_controller.dart';
@@ -21,6 +22,7 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   void initState() {
     super.initState();
+    // Load the user's profile data into the text fields on initialization
     widget.settingsController.loadUserProfile().then((_) {
       setState(() {
         _usernameController.text = widget.settingsController.userModel?.username ?? '';
@@ -29,15 +31,17 @@ class _SettingsViewState extends State<SettingsView> {
     });
   }
 
+  // Save changes to the user's profile in Firestore
   Future<void> _saveChanges() async {
     await widget.settingsController.updateUserProfile(
       uid: widget.userId,
       username: _usernameController.text.trim(),
       avatarUrl: _avatarController.text.trim(),
     );
-    Navigator.pop(context, true);
+    Navigator.pop(context, true); // Return to the previous screen
   }
 
+  // Log out the user and redirect to the login page
   void _signOut() async {
     await widget.settingsController.signOut();
     Navigator.pushReplacementNamed(context, '/');
@@ -55,21 +59,25 @@ class _SettingsViewState extends State<SettingsView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Input field for username
             TextField(
               controller: _usernameController,
               decoration: InputDecoration(labelText: 'Username'),
             ),
             const SizedBox(height: 20),
+            // Input field for avatar URL
             TextField(
               controller: _avatarController,
               decoration: InputDecoration(labelText: 'Avatar URL'),
             ),
             const SizedBox(height: 20),
+            // Button to save changes
             ElevatedButton(
               onPressed: _saveChanges,
               child: Text('Save Changes'),
             ),
             Spacer(),
+            // Button to sign out
             ElevatedButton(
               onPressed: _signOut,
               child: Text('Sign Out'),
