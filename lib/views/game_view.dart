@@ -177,6 +177,7 @@ class _GameViewState extends State<GameView> {
               ),
             ),
             Container(
+              margin: const EdgeInsets.only(bottom: 64.0),
               padding: const EdgeInsets.all(8.0),
               color: AppColors.background,
               child: ElevatedButton(
