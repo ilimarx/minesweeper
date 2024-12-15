@@ -78,15 +78,17 @@ class _LeaderboardViewState extends State<LeaderboardView> {
         title: const Text('Leaderboard'),
         centerTitle: true,
       ),
-      body: isLoading
+      body: user == null
           ? const Center(child: CircularProgressIndicator())
-          : user == null
-          ? const Center(child: Text('No user data found.'))
           : Column(
         children: [
           _buildProfileHeader(),
           _buildDifficultySelector(),
-          Expanded(child: _buildLeaderboard()),
+          Expanded(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _buildLeaderboard(),
+          ),
         ],
       ),
     );
