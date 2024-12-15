@@ -30,12 +30,6 @@ class _HomepageViewState extends State<HomepageView> {
             },
           ),
         ],
-        leading: IconButton(
-          onPressed: _showRules,
-          tooltip: 'Theme',
-          icon: const Icon(Icons.dark_mode),
-          iconSize: 36,
-        ),
       ),
       body: Center(
         child: Column(

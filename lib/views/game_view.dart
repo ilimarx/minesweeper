@@ -60,26 +60,6 @@ class _GameViewState extends State<GameView> {
             },
           ),
           actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isFlagMode ? AppColors.primary : AppColors.surface,
-              ),
-              onPressed: () {
-                setState(() {
-                  isFlagMode = !isFlagMode;
-                });
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgPicture.asset(
-                    'assets/images/flag.svg',
-                    width: 24,
-                    height: 24,
-                  ),
-                ],
-              ),
-            ),
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () {
@@ -97,73 +77,107 @@ class _GameViewState extends State<GameView> {
             ),
           ],
         ),
-        body: Consumer<GameController>(
-          builder: (context, gameController, child) {
+        body: Column(
+          children: [
+            Expanded(
+              child: Consumer<GameController>(
+                builder: (context, gameController, child) {
+                  if (gameController.gameOver) {
+                    gameController.revealAllTiles();
+                  }
 
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(widget.rows, (row) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(widget.cols, (col) {
+                            TileModel tile = gameController.grid[row][col];
 
-            if (gameController.gameOver) {
-              gameController.revealAllTiles();
-              
-            }
-
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(widget.rows, (row) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(widget.cols, (col) {
-                      TileModel tile = gameController.grid[row][col];
-                      bool isProcessing = false;
-
-                      return GestureDetector(
-                        onTap: () {
-                          if (isFlagMode) {
-                            _gameController.toggleFlag(row, col);
-                          } else {
-                            _gameController.revealTile(row, col);
-                          }
-                        },
-                        onLongPress: () {
-                          _gameController.toggleFlag(row, col);
-                        },
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          margin: const EdgeInsets.all(2),
-                          color: tile.visible
-                              ? (tile.hasMine ? (gameController.gameWon ? AppColors.success : AppColors.error) : AppColors.surface)
-                              : AppColors.primary,
-                          child: Center(
-                            child: tile.visible
-                                ? (tile.hasMine
-                                    ? SvgPicture.asset(
-                                        'assets/images/mine.svg', // Replace with your mine SVG asset path
-                                        width: 24,
-                                        height: 24,
-                                      )
-                                    : (tile.value > 0
-                                        ? Text(
-                                            tile.value.toString(),
-                                            style: const TextStyle(color: AppColors.textPrimary),
-                                          )
-                                        : const SizedBox()))
-                                : (tile.hasFlag
-                                    ? SvgPicture.asset(
-                                        'assets/images/flag.svg', // Replace with your flag SVG asset path
-                                        width: 24,
-                                        height: 24,
-                                      )
-                                    : const SizedBox()),
-                          ),
-                        ),
-                      );
-                    }),
+                            return GestureDetector(
+                              onTap: () {
+                                if (isFlagMode) {
+                                  _gameController.toggleFlag(row, col);
+                                } else {
+                                  _gameController.revealTile(row, col);
+                                }
+                              },
+                              onLongPress: () {
+                                _gameController.toggleFlag(row, col);
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                margin: const EdgeInsets.all(2),
+                                color: tile.visible
+                                    ? (tile.hasMine
+                                        ? (gameController.gameWon ? AppColors.success : AppColors.error)
+                                        : AppColors.surface)
+                                    : AppColors.primary,
+                                child: Center(
+                                  child: tile.visible
+                                      ? (tile.hasMine
+                                          ? SvgPicture.asset(
+                                              'assets/images/mine.svg',
+                                              width: 24,
+                                              height: 24,
+                                            )
+                                          : (tile.value > 0
+                                              ? Text(
+                                                  tile.value.toString(),
+                                                  style: const TextStyle(color: AppColors.textPrimary),
+                                                )
+                                              : const SizedBox()))
+                                      : (tile.hasFlag
+                                          ? SvgPicture.asset(
+                                              'assets/images/flag.svg',
+                                              width: 24,
+                                              height: 24,
+                                            )
+                                          : const SizedBox()),
+                                ),
+                              ),
+                            );
+                          }),
+                        );
+                      }),
+                    ),
                   );
-                }),
+                },
               ),
-            );
-          },
+            ),
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              color: AppColors.background,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isFlagMode ? AppColors.primary : AppColors.surface,
+                ),
+                onPressed: () {
+                  setState(() {
+                    isFlagMode = !isFlagMode;
+                  });
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/flag.svg',
+                      width: 24,
+                      height: 24,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(isFlagMode ? 'Flag Mode On' : 'Flag Mode Off',
+                      style: TextStyle(
+                        color: isFlagMode ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
