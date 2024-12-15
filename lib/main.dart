@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:minesweeper/controllers/leaderboard_controller.dart';
 import 'package:minesweeper/controllers/profile_controller.dart';
 
 import 'package:minesweeper/models/homepage_model.dart';
@@ -10,6 +11,7 @@ import 'package:minesweeper/models/user_model.dart';
 import 'package:minesweeper/theme/colors.dart';
 import 'package:minesweeper/views/homepage_view.dart';
 import 'package:minesweeper/routing/authentication_wrapper.dart';
+import 'package:minesweeper/views/leaderboard_view.dart';
 import 'package:minesweeper/views/profile_view.dart';
 import 'package:minesweeper/views/settings_view.dart';
 
@@ -84,6 +86,10 @@ class MinesweeperApp extends StatelessWidget {
           final uid = ModalRoute.of(context)!.settings.arguments as String;
           final settingsController = SettingsController();
           return SettingsView(settingsController: settingsController, userId: uid);
+        },
+        '/leaderboard': (context) {
+          final leaderboardController = LeaderboardController();
+          return LeaderboardView(controller: leaderboardController);
         }
       },
     );

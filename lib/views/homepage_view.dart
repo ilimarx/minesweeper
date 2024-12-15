@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../controllers/homepage_controller.dart';
 import '../models/user_model.dart';
+import '../theme/colors.dart';
 import 'profile_view.dart';
 
 class HomepageView extends StatefulWidget {
@@ -57,10 +58,19 @@ class _HomepageViewState extends State<HomepageView> {
             ElevatedButton(
                 onPressed: _showRules,
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFE1E6C3),
+                    backgroundColor: AppColors.surface,
                     foregroundColor: Color(0xFF32361F)
                 ),
                 child: const Text('Game Rules')
+            ),
+            const SizedBox(height: 9),
+            ElevatedButton(
+                onPressed: () { Navigator.pushNamed(context, '/leaderboard'); },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.surface,
+                    foregroundColor: Color(0xFF32361F)
+                ),
+                child: const Text('Leaderboard')
             ),
           ],
         ),
