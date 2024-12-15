@@ -1,3 +1,5 @@
+// Author: Ilia Markelov (xmarke00)
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../controllers/auth_controller.dart';
@@ -10,11 +12,12 @@ class AuthView extends StatefulWidget {
 }
 
 class _AuthViewState extends State<AuthView> {
-  final AuthController _authController = AuthController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  String? _errorMessage;
+  final AuthController _authController = AuthController(); // Handles authentication logic
+  final _emailController = TextEditingController(); // Controller for email input
+  final _passwordController = TextEditingController(); // Controller for password input
+  String? _errorMessage; // Stores error messages during authentication
 
+  /// Attempts to sign in the user using provided credentials
   Future<void> _signIn() async {
     final user = await _authController.signInWithEmailAndPassword(
       _emailController.text.trim(),
@@ -52,12 +55,13 @@ class _AuthViewState extends State<AuthView> {
               decoration: InputDecoration(
                 labelText: 'Password',
               ),
-              obscureText: true,
+              obscureText: true, // Hides password input
             ),
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Button to navigate to account creation screen
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -74,6 +78,7 @@ class _AuthViewState extends State<AuthView> {
                     foregroundColor: Color(0xFF32361F),
                   ),
                 ),
+                // Button to trigger sign-in action
                 ElevatedButton(
                   onPressed: _signIn,
                   child: Text('Sign In'),
@@ -83,6 +88,7 @@ class _AuthViewState extends State<AuthView> {
                 ),
               ],
             ),
+            // Display error message if any
             if (_errorMessage != null) ...[
               SizedBox(height: 20),
               Text(

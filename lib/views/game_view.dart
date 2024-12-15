@@ -1,3 +1,5 @@
+// Author: Ilia Markelov (xmarke00)
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,10 +20,10 @@ class GameView extends StatefulWidget {
 }
 
 class _GameViewState extends State<GameView> {
-  late GameController _gameController;
-  late Timer _timer;
-  int _elapsedTime = 0;
-  bool isFlagMode = false;
+  late GameController _gameController; // Manages game logic
+  late Timer _timer; // Tracks elapsed time
+  int _elapsedTime = 0; // Stores time in seconds
+  bool isFlagMode = false; // Toggles flag mode
 
   @override
   void initState() {
@@ -30,10 +32,11 @@ class _GameViewState extends State<GameView> {
     _startTimer();
   }
 
+  // Starts the timer to track game duration
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_gameController.gameOver) {
-        timer.cancel();
+        timer.cancel(); // Stop the timer if the game ends
       } else {
         setState(() {
           _elapsedTime++;
@@ -44,7 +47,7 @@ class _GameViewState extends State<GameView> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer.cancel(); // Clean up resources
     super.dispose();
   }
 
@@ -56,6 +59,7 @@ class _GameViewState extends State<GameView> {
         appBar: AppBar(
           title: Consumer<GameController>(
             builder: (context, gameController, child) {
+              // Display elapsed time in the app bar
               return Center(child: Text('Time: $_elapsedTime s'));
             },
           ),
@@ -63,6 +67,7 @@ class _GameViewState extends State<GameView> {
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () {
+                // Restart the game
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -81,6 +86,7 @@ class _GameViewState extends State<GameView> {
           children: [
             Consumer<GameController>(
               builder: (context, gameController, child) {
+                // Show game result (win/lose)
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
@@ -90,7 +96,7 @@ class _GameViewState extends State<GameView> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: gameController.gameWon ? AppColors.success : AppColors.error, // Change color as needed
+                      color: gameController.gameWon ? AppColors.success : AppColors.error,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -101,9 +107,10 @@ class _GameViewState extends State<GameView> {
               child: Consumer<GameController>(
                 builder: (context, gameController, child) {
                   if (gameController.gameOver) {
-                    gameController.revealAllTiles();
+                    gameController.revealAllTiles(); // Reveal all tiles when the game ends
                   }
 
+                  // Render game grid
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -115,6 +122,7 @@ class _GameViewState extends State<GameView> {
 
                             return GestureDetector(
                               onTap: () {
+                                // Toggle flag or reveal tile
                                 if (isFlagMode) {
                                   _gameController.toggleFlag(row, col);
                                 } else {
@@ -130,33 +138,33 @@ class _GameViewState extends State<GameView> {
                                 margin: const EdgeInsets.all(2),
                                 color: tile.visible
                                     ? (tile.hasMine
-                                        ? (gameController.gameWon
-                                            ? AppColors.success
-                                            : AppColors.error)
-                                        : AppColors.surface)
+                                    ? (gameController.gameWon
+                                    ? AppColors.success
+                                    : AppColors.error)
+                                    : AppColors.surface)
                                     : AppColors.primary,
                                 child: Center(
                                   child: tile.visible
                                       ? (tile.hasMine
-                                          ? SvgPicture.asset(
-                                              'assets/images/mine.svg',
-                                              width: 24,
-                                              height: 24,
-                                            )
-                                          : (tile.value > 0
-                                              ? Text(
-                                                  tile.value.toString(),
-                                                  style: const TextStyle(
-                                                      color: AppColors.textPrimary),
-                                                )
-                                              : const SizedBox()))
+                                      ? SvgPicture.asset(
+                                    'assets/images/mine.svg',
+                                    width: 24,
+                                    height: 24,
+                                  )
+                                      : (tile.value > 0
+                                      ? Text(
+                                    tile.value.toString(),
+                                    style: const TextStyle(
+                                        color: AppColors.textPrimary),
+                                  )
+                                      : const SizedBox()))
                                       : (tile.hasFlag
-                                          ? SvgPicture.asset(
-                                              'assets/images/flag.svg',
-                                              width: 24,
-                                              height: 24,
-                                            )
-                                          : const SizedBox()),
+                                      ? SvgPicture.asset(
+                                    'assets/images/flag.svg',
+                                    width: 24,
+                                    height: 24,
+                                  )
+                                      : const SizedBox()),
                                 ),
                               ),
                             );
@@ -177,7 +185,7 @@ class _GameViewState extends State<GameView> {
                 ),
                 onPressed: () {
                   setState(() {
-                    isFlagMode = !isFlagMode;
+                    isFlagMode = !isFlagMode; // Toggle flag mode
                   });
                 },
                 child: Row(
@@ -192,7 +200,7 @@ class _GameViewState extends State<GameView> {
                     Text(
                       isFlagMode ? 'Flag Mode On' : 'Flag Mode Off',
                       style: TextStyle(
-                        color: isFlagMode ? Colors.white : Colors.black, // Dynamic color
+                        color: isFlagMode ? Colors.white : Colors.black,
                       ),
                     ),
                   ],
