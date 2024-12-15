@@ -55,12 +55,12 @@ class _HomepageViewState extends State<HomepageView> {
             ),
             const SizedBox(height: 9),
             ElevatedButton(
-              onPressed: _showRules, // Show game rules in a dialog.
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.surface,
-                foregroundColor: Color(0xFF32361F),
-              ),
-              child: const Text('Game Rules'),
+                onPressed: _showRules,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.surface,
+                    foregroundColor: Color(0xFF32361F)
+                ),
+                child: const Text('How to Play')
             ),
             const SizedBox(height: 9),
             ElevatedButton(
@@ -103,11 +103,14 @@ class _HomepageViewState extends State<HomepageView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Minesweeper Rules'),
+          title: const Text('How to Play'),
           content: const Text(
             'Minesweeper is a puzzle game where you have to clear a board without detonating any hidden mines.'
-                '\n\nSelect a tile to reveal its contents. Numbers on the tiles indicate how many mines are adjacent to that tile.'
-                '\n\nGood luck!',
+                '\n\n1. Tap a tile to reveal it.'
+                '\n\n2. Numbers show how many mines are nearby.'
+                '\n\n3. Use Flag Mode (button below) to mark tiles with mines.'
+                '\n\n4. You can also set flags with the long press on tile, while outside of the Flag Mode.'
+                '\n\n5. Win by revealing all tiles without mines, or lose if you tap a mine!',
           ),
           actions: <Widget>[
             TextButton(
