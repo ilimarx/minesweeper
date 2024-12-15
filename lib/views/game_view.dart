@@ -79,6 +79,24 @@ class _GameViewState extends State<GameView> {
         ),
         body: Column(
           children: [
+            Consumer<GameController>(
+              builder: (context, gameController, child) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    gameController.gameOver
+                        ? (gameController.gameWon ? 'You Win!' : 'You Lose!')
+                        : '',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: gameController.gameWon ? AppColors.success : AppColors.error, // Change color as needed
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              },
+            ),
             Expanded(
               child: Consumer<GameController>(
                 builder: (context, gameController, child) {
@@ -112,7 +130,9 @@ class _GameViewState extends State<GameView> {
                                 margin: const EdgeInsets.all(2),
                                 color: tile.visible
                                     ? (tile.hasMine
-                                        ? (gameController.gameWon ? AppColors.success : AppColors.error)
+                                        ? (gameController.gameWon
+                                            ? AppColors.success
+                                            : AppColors.error)
                                         : AppColors.surface)
                                     : AppColors.primary,
                                 child: Center(
@@ -126,7 +146,8 @@ class _GameViewState extends State<GameView> {
                                           : (tile.value > 0
                                               ? Text(
                                                   tile.value.toString(),
-                                                  style: const TextStyle(color: AppColors.textPrimary),
+                                                  style: const TextStyle(
+                                                      color: AppColors.textPrimary),
                                                 )
                                               : const SizedBox()))
                                       : (tile.hasFlag
@@ -168,9 +189,10 @@ class _GameViewState extends State<GameView> {
                       height: 24,
                     ),
                     const SizedBox(width: 8),
-                    Text(isFlagMode ? 'Flag Mode On' : 'Flag Mode Off',
+                    Text(
+                      isFlagMode ? 'Flag Mode On' : 'Flag Mode Off',
                       style: TextStyle(
-                        color: isFlagMode ? Colors.white : Colors.black,
+                        color: isFlagMode ? Colors.white : Colors.black, // Dynamic color
                       ),
                     ),
                   ],
