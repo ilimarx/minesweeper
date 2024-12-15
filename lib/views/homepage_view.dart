@@ -19,7 +19,7 @@ class _HomepageViewState extends State<HomepageView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(child: Text('Minesweeper Menu')),
+        title: Text('Minesweeper Menu'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
@@ -30,6 +30,7 @@ class _HomepageViewState extends State<HomepageView> {
             },
           ),
         ],
+        centerTitle: true,
       ),
       body: Center(
         child: Column(
