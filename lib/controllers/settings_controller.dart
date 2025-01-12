@@ -23,6 +23,15 @@ class SettingsController {
     }
   }
 
+  Future<bool> isUsernameTaken(String username) async {
+    final snapshot = await _firestore
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .get();
+    return snapshot.docs.isNotEmpty;
+  }
+
+
   /// Updates the user's profile in Firestore with the given data.
   Future<void> updateUserProfile({
     required String uid,

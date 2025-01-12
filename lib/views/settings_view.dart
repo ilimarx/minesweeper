@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:minesweeper/controllers/auth_controller.dart';
 import 'package:minesweeper/controllers/settings_controller.dart';
 import '../controllers/profile_controller.dart';
+import '../theme/colors.dart';
 
 class SettingsView extends StatefulWidget {
   final SettingsController settingsController;
@@ -18,6 +19,7 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _avatarController = TextEditingController();
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -33,9 +35,19 @@ class _SettingsViewState extends State<SettingsView> {
 
   // Save changes to the user's profile in Firestore
   Future<void> _saveChanges() async {
+    final newUsername = _usernameController.text.trim();
+
+    if (await widget.settingsController.isUsernameTaken(newUsername) &&
+        newUsername != widget.settingsController.userModel?.username) {
+      setState(() {
+        _errorMessage = 'This username is already taken.';
+      });
+      return;
+    }
+
     await widget.settingsController.updateUserProfile(
       uid: widget.userId,
-      username: _usernameController.text.trim(),
+      username: newUsername,
       avatarUrl: _avatarController.text.trim(),
     );
     Navigator.pop(context, true); // Return to the previous screen
@@ -62,7 +74,17 @@ class _SettingsViewState extends State<SettingsView> {
             // Input field for username
             TextField(
               controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+              decoration: InputDecoration(
+                labelText: 'Username',
+                errorText: _errorMessage,
+              ),
+              onChanged: (value) {
+                if (_errorMessage != null) {
+                  setState(() {
+                    _errorMessage = null;
+                  });
+                }
+              },
             ),
             const SizedBox(height: 20),
             // Input field for avatar URL

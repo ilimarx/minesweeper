@@ -175,14 +175,14 @@ class _LeaderboardViewState extends State<LeaderboardView> {
         ),
         IconButton(
           icon: const Icon(Icons.arrow_right),
-          onPressed: selectedDifficulty == 20
+          onPressed: selectedDifficulty == 20   // hard
               ? null
               : () {
             final newDifficulty = selectedDifficulty == null
-                ? 5
-                : selectedDifficulty == 5
-                ? 10
-                : 20;
+                ? 5     // easy difficulty
+                : selectedDifficulty == 5   // easy difficulty is selected
+                ? 10    // medium difficulty
+                : 20;   // hard difficulty
             _changeDifficulty(newDifficulty);
           },
         ),
